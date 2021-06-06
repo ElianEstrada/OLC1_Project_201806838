@@ -3,6 +3,8 @@ from tkinter.constants import FLAT, GROOVE, RAISED, SEL_FIRST, SEL_LAST, SUNKEN
 
 import os
 
+from grammar import analize_lex
+
 #########------------Functions for GUI---------------##########
 
 fileInput = ""
@@ -66,6 +68,10 @@ def analize(e = None):
     global fileInput
     global string
     global pathFileJs
+
+    analize_lex(txtInput.get("1.0", "end"))
+
+
 
 
 ###---------Current row function---------###

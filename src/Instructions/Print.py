@@ -1,6 +1,6 @@
-from Abstract.Instruction import Instruction
-from SymbolTable.Errors import Error
-from SymbolTable.Type import type
+from src.Abstract.Instruction import Instruction
+from src.SymbolTable.Errors import Error
+from src.SymbolTable.Type import type
 
 
 class Print(Instruction):

@@ -22,7 +22,7 @@ reserved_words = {
     "main": "res_main", 
     "true": "res_true",
     "false": "res_false", 
-    "var": "var"
+    "var": "res_var"
 
 }
 
@@ -133,9 +133,11 @@ def t_tk_string(t):
     return t
 
 def t_tk_char(t):
-    r'\'\\?.\''
+    #r'\'\\?.\''
+    r'\'(\\\'|\\"|\\t|\\n|\\\\|.)\''
+    
     t.value = t.value[1:-1]
-
+    print(t.value)
     t.value = t.value.replace('\\t', '\t')
     t.value = t.value.replace('\\n', '\n')
     t.value = t.value.replace('\\"', '\"')
@@ -169,14 +171,163 @@ def t_error(t):
     t.lexer.skip(1)
 
 
+def find_column(input_token, token):
+    line_start = input_token.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
+
+from tkinter.constants import NONE
 import ply.lex as lex
+lexer = lex.lex()
 
-def analize_lex(string): 
-    current = lex.lex()
-    current.input(string)
-    nuevo = current.token()
-    print(nuevo)
-    while nuevo != None:
-        nuevo = current.token()
-        print(nuevo)
 
+errors = []
+
+#Precedence and Asosiation
+precedence = (
+    ('left', 'tk_add', 'tk_sub'),
+    ('left', 'tk_mult', 'tk_div'),
+)
+
+#Grammar Definition
+
+#Abstract
+from src.Abstract.Instruction import Instruction
+from src.Instructions.Print import Print
+from src.Expression.Primitive import Primitive
+from src.Expression.Arithmetic import Arithmetic
+from src.SymbolTable.Type import type, Arithmetic_Operator
+from src.SymbolTable.Errors import Error
+
+
+start = 'init'
+
+###---------Production Init---------###
+def p_init(t):
+    'init : instructions'
+    t[0] = t[1]
+
+###---------Production instructions---------###
+
+def p_instructions(t):
+    'instructions : instructions instruction'
+    if t[2] != None:
+        t[1].append(t[2])
+    t[0] = t[1]
+
+def p_instructions_instruction(t):
+    'instructions : instruction'
+    if t[1] == None:
+        t[0] = []
+    else:
+        t[0] = [t[1]]
+
+###---------Production instruction---------###
+
+def p_instruction(t):
+    '''instruction : statement ptcommaP
+                   | assignment ptcommaP 
+                   | print ptcommaP
+                   | functions'''
+    t[0] = t[1]
+
+def p_instruction_error(t):
+    'instruction : error tk_dotcomma'
+    print(f"Error sintáctico: {str(t[1].value)}, {t.lineno(1)}, {find_column(input, t.slice[1])}")
+    #errors.append(f"Error sintáctico: {str(t[1].value)}, {t.lineno(1)}, {find_column(input, t.slice[1])}")
+    errors.append(Error("Sintactic", f"Sintactic error {str(t[1].value)}", t.lineno(1), find_column(input, t.slice[1])))
+    t[0] = None
+
+###---------Production Statement---------###
+
+def p_statement(t):
+    'statement : res_var tk_id statementP'
+    if t[3] != None:
+        t[0] = t[1] + t[2] + t[3]
+    else:
+        t[0]  = t[1] + t[2]
+
+
+def p_statementP(t):
+    '''statementP : tk_assig expression
+                  | empty'''
+    if t[1] != None:
+        t[0] = t[1] + str(t[2])
+    else:
+        t[0] = t[1]
+
+###---------Production Assignment---------###
+
+def p_assignment(t):
+    'assignment : tk_id tk_assig expression'
+    t[0] = t[1] + t[2] + str(t[3])
+
+
+###---------Production Functions---------###
+
+def p_functions(t):
+    'functions : function_main'
+    t[0] = t[1]
+
+###---------Production function_main---------###
+
+def p_function_main(t):
+    'function_main : res_main tk_par_o tk_par_c tk_key_o instructions tk_key_c'
+    t[0] = t[1] + t[2] + t[3] + t[4] + str(t[5]) + t[6]
+
+
+###---------Production print---------###
+
+def p_print(t):
+    'print : res_print tk_par_o expression tk_par_c'
+    t[0] = Print(t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+###---------Production ptcommaP---------###
+
+def p_ptcommaP(t):
+    '''ptcommaP : tk_dotcomma
+                | empty'''
+    t[0] = t[1]
+
+
+###---------Production Expression---------###
+
+def p_expression_binary(t):
+    '''expression : expression tk_add expression
+                  | expression tk_sub expression'''
+    
+    if t[2] == '+':
+        t[0] = Arithmetic(t[1], t[3], Arithmetic_Operator.ADDITION, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '-':
+        t[0] = Arithmetic(t[1], t[3], Arithmetic_Operator.SUBSTRACTION, t.lineno(2), find_column(input, t.slice[2]))
+
+
+def p_expression_primitive(t):
+    '''
+    expression :  tk_int
+    '''
+    t[0] = Primitive(type.INTEGGER, t[1], t.lineno(1), find_column(input, t.slice[1]))
+
+###---------Production empty---------###
+
+def p_empty(t):
+    'empty : '
+    pass
+
+import ply.yacc as yacc
+parser = yacc.yacc()
+
+
+input = ''
+
+def getErrors():
+    return errors
+
+def parser(str_input):
+    global errors
+    global input
+    errors = []
+    lexer = lex.lex()
+    parser = yacc.yacc()
+
+    input = str_input
+    return parser.parse(str_input)

@@ -2,8 +2,9 @@ from tkinter import Image, PhotoImage, Tk, Menu, messagebox, filedialog, ttk, La
 from tkinter.constants import FLAT, GROOVE, RAISED, SEL_FIRST, SEL_LAST, SUNKEN
 
 import os
+from src.SymbolTable.Errors import Error
 
-from grammar import analize_lex
+from grammar import parser
 
 #########------------Functions for GUI---------------##########
 
@@ -63,13 +64,31 @@ def save(e = None):
             fileSave.write(txtInput.get(1.0, END))
 
 
+##Imports for Interpreter
+from src.SymbolTable.Tree import Tree
+from src.SymbolTable.SymbolTable import SymbolTable
+
+
 ###---------Analize function---------###
 def analize(e = None): 
     global fileInput
     global string
     global pathFileJs
 
-    analize_lex(txtInput.get("1.0", "end"))
+    instructions = parser(txtInput.get('1.0', 'end'))
+    print(instructions[0])
+    ast = Tree(instructions)
+    ts_global = SymbolTable()
+    ast.set_global_table(ts_global)
+
+    for instruction in ast.get_instructions():
+        value = instruction.interpret(ast, ts_global)
+        if isinstance(value, Error):
+            ast.get_errors().append(value)
+            ast.update_console(value)
+    
+    print(ast.get_console())
+
 
 
 
@@ -83,7 +102,6 @@ def current_row(flag, flag2 = False):
 
     if rowCount < end:
         flag2 = True
-
     if flag and flag2: 
         rowCount += 1
         lblRow2.config(text = rowCount)

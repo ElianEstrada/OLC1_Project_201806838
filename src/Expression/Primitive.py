@@ -1,4 +1,4 @@
-from Abstract.Instruction import Instruction
+from src.Abstract.Instruction import Instruction
 
 class Primitive(Instruction):
 
@@ -15,12 +15,15 @@ class Primitive(Instruction):
         self.__type = type
     
     def get_type(self):
-        self.__type
+        return self.__type
 
     def set_value(self, value):
         self.__value = value
 
     def get_value(self):
         return self.__value
+
+    def __str__(self):
+        return f"{self.__type} - {self.__value} in [{self.row}, {self.column}]"
 
         

@@ -1,6 +1,6 @@
-from Abstract.Instruction import Instruction
-from SymbolTable.Errors import Error
-from SymbolTable.Type import type, Arithmetic_Operator
+from src.Abstract.Instruction import Instruction
+from src.SymbolTable.Errors import Error
+from src.SymbolTable.Type import type, Arithmetic_Operator
 
 class Arithmetic(Instruction):
 
@@ -12,8 +12,8 @@ class Arithmetic(Instruction):
         self.column = column
         self.__type = None
         self.__bolean = {
-            "true": 1,
-            "false": 0
+            "true": True,
+            "false": False
         }
 
     def interpret(self, tree, table):
@@ -31,16 +31,17 @@ class Arithmetic(Instruction):
         
             if self.__operator == Arithmetic_Operator.ADDITION:
                 
-                if self.exp1.get_type() == type.INTEGGER:
+                print(self.__exp1.get_type())
+                if self.__exp1.get_type() == type.INTEGGER:
 
-                    if self.exp2.get_type() == type.INTEGGER:
+                    if self.__exp2.get_type() == type.INTEGGER:
                         self.__type = type.INTEGGER
                         return int(left) + int(right)
                     elif self.__exp2.get_type() == type.FLOAT:
                         self.__type = type.FLOAT
                         return float(left) + float(right)
                     elif self.__exp2.get_type() == type.STRING:
-                        self._-type = type.STRING
+                        self.__type = type.STRING
                         return str(left) + right
                     elif self.__exp2.get_type() == type.BOOLEAN:
                         self.__type = type.INTEGGER
@@ -48,13 +49,13 @@ class Arithmetic(Instruction):
                     else:   
                         return Error("Semantic", f"The type: {self.__exp2.get_type().name} cannot be operated whit type: INTEGGER", self.row, self.column)
 
-                elif self.exp1.get_type() == type.FLOAT:
+                elif self.__exp1.get_type() == type.FLOAT:
                     
-                    if self.exp2.get_type() in (type.INTEGGER, type.FLOAT):
+                    if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
                         self.__type = type.FLOAT
                         return float(left) + float(right)
                     elif self.__exp2.get_type() == type.STRING:
-                        self._-type = type.STRING
+                        self.__type = type.STRING
                         return str(left) + right
                     elif self.__exp2.get_type() == type.BOOLEAN:
                         self.__type = type.FLOAT
@@ -64,14 +65,14 @@ class Arithmetic(Instruction):
                 
                 elif self.__exp1.get_type() == type.BOOLEAN:
 
-                    if self.exp2.get_type() == type.INTEGGER:
+                    if self.__exp2.get_type() == type.INTEGGER:
                         self.__type = type.INTEGGER
                         return int(self.__bolean[left]) + int(right)
                     elif self.__exp2.get_type() == type.FLOAT:
                         self.__type = type.FLOAT
                         return float(self.__bolean[left]) + float(right)
                     elif self.__exp2.get_type() == type.STRING:
-                        self._-type = type.STRING
+                        self.__type = type.STRING
                         return str(left) + right
                     elif self.__exp2.get_type() == type.BOOLEAN:
                         self.__type = type.INTEGGER
@@ -81,7 +82,7 @@ class Arithmetic(Instruction):
 
                 elif self.__exp1.get_type() == type.CHAR:
 
-                    if self.exp2.get_type() in (type.CHAR, type.STRING):
+                    if self.__exp2.get_type() in (type.CHAR, type.STRING):
                         self.__type = type.STRING
                         return str(left) + str(right)
                     else: 
@@ -89,7 +90,7 @@ class Arithmetic(Instruction):
                 
                 elif self.__exp1.get_type() == type.STRING:
 
-                    if self.exp2.get_type() in (type.INTEGGER, type.FLOAT, type.CHAR, type.STRING, type.BOOLEAN):
+                    if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT, type.CHAR, type.STRING, type.BOOLEAN):
                         self.__type = type.STRING
                         return str(left) + str(right)
                     else: 
@@ -99,9 +100,9 @@ class Arithmetic(Instruction):
 
             if self.__operator == Arithmetic_Operator.SUBSTRACTION:
 
-                if self.exp1.get_type() == type.INTEGGER:
+                if self.__exp1.get_type() == type.INTEGGER:
 
-                    if self.exp2.get_type() == type.INTEGGER:
+                    if self.__exp2.get_type() == type.INTEGGER:
                         self.__type = type.INTEGGER
                         return int(left) - int(right)
                     elif self.__exp2.get_type() == type.FLOAT:
@@ -113,9 +114,9 @@ class Arithmetic(Instruction):
                     else:   
                         return Error("Semantic", f"The type: {self.__exp2.get_type().name} cannot be operated whit type: INTEGGER", self.row, self.column)
 
-                elif self.exp1.get_type() == type.FLOAT:
+                elif self.__exp1.get_type() == type.FLOAT:
                     
-                    if self.exp2.get_type() in (type.INTEGGER, type.FLOAT):
+                    if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
                         self.__type = type.FLOAT
                         return float(left) - float(right)
                     elif self.__exp2.get_type() == type.BOOLEAN:
@@ -126,7 +127,7 @@ class Arithmetic(Instruction):
                 
                 elif self.__exp1.get_type() == type.BOOLEAN:
 
-                    if self.exp2.get_type() == type.INTEGGER:
+                    if self.__exp2.get_type() == type.INTEGGER:
                         self.__type = type.INTEGGER
                         return int(self.__bolean[left]) - int(right)
                     elif self.__exp2.get_type() == type.FLOAT:
@@ -142,9 +143,9 @@ class Arithmetic(Instruction):
         
             elif self.__operator == Arithmetic_Operator.MULTIPLICATION:
 
-                if self.exp1.get_type() == type.INTEGGER:
+                if self.__exp1.get_type() == type.INTEGGER:
 
-                    if self.exp2.get_type() == type.INTEGGER:
+                    if self.__exp2.get_type() == type.INTEGGER:
                         self.__type = type.INTEGGER
                         return int(left) * int(right)
                     elif self.__exp2.get_type() == type.FLOAT:
@@ -153,9 +154,9 @@ class Arithmetic(Instruction):
                     else:   
                         return Error("Semantic", f"The type: {self.__exp2.get_type().name} cannot be operated whit type: INTEGGER", self.row, self.column)
 
-                elif self.exp1.get_type() == type.FLOAT:
+                elif self.__exp1.get_type() == type.FLOAT:
                     
-                    if self.exp2.get_type() in (type.INTEGGER, type.FLOAT):
+                    if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
                         self.__type = type.FLOAT
                         return float(left) * float(right)
                     else:
@@ -165,9 +166,9 @@ class Arithmetic(Instruction):
             
             elif self.__operator == Arithmetic_Operator.POWER:
 
-                if self.exp1.get_type() == type.INTEGGER:
+                if self.__exp1.get_type() == type.INTEGGER:
 
-                    if self.exp2.get_type() == type.INTEGGER:
+                    if self.__exp2.get_type() == type.INTEGGER:
                         self.__type = type.INTEGGER
                         return int(left) ** int(right)
                     elif self.__exp2.get_type() == type.FLOAT:
@@ -176,9 +177,9 @@ class Arithmetic(Instruction):
                     else:   
                         return Error("Semantic", f"The type: {self.__exp2.get_type().name} cannot be operated whit type: INTEGGER", self.row, self.column)
 
-                elif self.exp1.get_type() == type.FLOAT:
+                elif self.__exp1.get_type() == type.FLOAT:
                     
-                    if self.exp2.get_type() in (type.INTEGGER, type.FLOAT):
+                    if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
                         self.__type = type.FLOAT
                         return float(left) ** float(right)
                     else:
@@ -189,9 +190,9 @@ class Arithmetic(Instruction):
             elif self.__operator == Arithmetic_Operator.DIVISION:
 
                 if int(right) != 0:
-                    if self.exp1.get_type() in (type.INTEGGER, type.FLOAT):
+                    if self.__exp1.get_type() in (type.INTEGGER, type.FLOAT):
 
-                        if self.exp2.get_type() in (type.INTEGGER, type.FLOAT):
+                        if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
                             self.__type = type.FLOAT
                             return float(left) / float(right)
                         else:   
@@ -204,9 +205,9 @@ class Arithmetic(Instruction):
             elif self.__operator == Arithmetic_Operator.MODULS:
 
                 if int(right) != 0:
-                    if self.exp1.get_type() in (type.INTEGGER, type.FLOAT):
+                    if self.__exp1.get_type() in (type.INTEGGER, type.FLOAT):
 
-                        if self.exp2.get_type() in (type.INTEGGER, type.FLOAT):
+                        if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
                             self.__type = type.FLOAT
                             return float(left) % float(right)
                         else:   
@@ -226,3 +227,5 @@ class Arithmetic(Instruction):
             else:
                 return Error("Semantic", f"The type: {self.__exp1.get_type().name} cannot be operated whit operator: -", self.row, self.column)
             
+    def get_type(self):
+        return self.__type

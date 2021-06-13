@@ -2,9 +2,53 @@ from tkinter import Image, PhotoImage, Tk, Menu, messagebox, filedialog, ttk, La
 from tkinter.constants import FLAT, GROOVE, RAISED, SEL_FIRST, SEL_LAST, SUNKEN
 
 import os
+import re
 from src.SymbolTable.Errors import Error
 
 from grammar import parser
+
+#########------------Dictonary for paint words------------#########
+
+reserved_words = [
+    'new',
+    'if',
+    'else',
+    'switch',
+    'case',
+    'print',
+    'break',
+    'default',
+    'while',
+    'for',
+    'continue',
+    'return',
+    'read',
+    'tolower',
+    'toupper',
+    'length',
+    'truncate',
+    'round',
+    'typeof',
+    'main',
+    'true',
+    'false',
+    'var',
+    'null'
+]
+
+operators = [
+    '<',
+    '>',
+    '=',
+    '!',
+    '+',
+    '-',
+    '*',
+    '/',
+    '|',
+    '%',
+    '&'
+]
 
 #########------------Functions for GUI---------------##########
 
@@ -30,7 +74,9 @@ def openFile(e = None):
     text = fileText.read()
 
     txtInput.delete(1.0, END)
-    txtInput.insert(INSERT, text)
+
+    for item in paint_words(text + ' '):
+        txtInput.insert(INSERT, item[1], item[0])
     positionPush()
     fileText.close()
     lines()
@@ -93,6 +139,167 @@ def analize(e = None):
     print(ast.get_console())
 
 
+
+def paint_words(text):
+    list = []
+    value = ''
+    c = ''
+    count = 0
+
+    while count < len(text):
+        c = text[count]
+        
+        if re.search(r"[a-zA-Z0-9_\.]", c):
+            value += c
+        elif c == '"':
+            if re.match(r'[a-zA-Z][a-zA-Z0-9_]*', value):
+                id = []
+                id.append("variable")
+                id.append(value)
+                list.append(id)
+                value = ''
+            elif re.match(r'(\d+\.\d+|\d+)', value):
+                num = []
+                num.append("number")
+                num.append(value)
+                list.append(num)
+                value = ''
+            value += c
+            count += 1
+            while count < len(text):
+                c = text[count]
+                value += c
+
+                if c == '\\':
+                    value += text[count + 1]
+                    count += 2
+                    continue
+
+                if c == '"':
+                    if re.match(r'\"(\\"|.)*?\"', value):
+                        str_in = []
+                        str_in.append("string")
+                        str_in.append(value)
+                        list.append(str_in)
+                        value = ''
+                    break
+
+                count += 1
+
+        elif c == "'":
+            if re.match(r'[a-zA-Z][a-zA-Z0-9_]*', value):
+                id = []
+                id.append("variable")
+                id.append(value)
+                list.append(id)
+                value = ''
+            elif re.match(r'(\d+\.\d+|\d+)', value):
+                num = []
+                num.append("number")
+                num.append(value)
+                list.append(num)
+                value = ''
+            value += c
+            count += 1
+            while count < len(text):
+                c = text[count]
+                value += c
+
+                if c == '\\':
+                    value += text[count + 1]
+                    count += 2
+                    continue
+
+                if c == '\'':
+                    if re.match(r'\'(\\\'|\\"|\\t|\\n|\\\\|.)\'', value):
+                        str_in = []
+                        str_in.append("string")
+                        str_in.append(value)
+                        list.append(str_in)
+                        value = ''
+                    break
+
+                count += 1
+
+        elif c == '#':
+            if re.match(r'[a-zA-Z][a-zA-Z0-9_]*', value):
+                id = []
+                id.append("variable")
+                id.append(value)
+                list.append(id)
+                value = ''
+            elif re.match(r'(\d+\.\d+|\d+)', value):
+                num = []
+                num.append("number")
+                num.append(value)
+                list.append(num)
+                value = ''
+            value += c
+            count += 1
+
+            c = text[count]
+
+            if c == '*':
+                value += c
+                count += 1
+                while count < len(text):
+                    c = text[count]
+                    value += c
+
+                    if c == '*':
+                        if text[count + 1] == '#':
+
+                            count += 1
+                            c = text[count]
+                            value += c
+                            if re.match(r'\#\*(.|\n)*?\*\#', value):
+                                com_mult = []
+                                com_mult.append("comment")
+                                com_mult.append(value)
+                                list.append(com_mult)
+                                value = ''
+                            break
+                    count += 1
+                continue
+            while count < len(text):
+                c = text[count]
+                value += c
+                if c == '\n':
+                    if re.match(r'\#.*\n', value):
+                        com_mult = []
+                        com_mult.append("comment")
+                        com_mult.append(value)
+                        list.append(com_mult)
+                        value = ''
+                    break
+                
+                count += 1
+        
+        else: 
+            if re.match(r'[a-zA-Z][a-zA-Z0-9_]*', value):
+                id = []
+                id.append("variable")
+                id.append(value)
+                list.append(id)
+                value = ''
+            elif re.match(r'(\d+\.\d+|\d+)', value):
+                num = []
+                num.append("number")
+                num.append(value)
+                list.append(num)
+                value = ''
+            other = []
+            other.append("other")
+            other.append(text[count])
+            list.append(other)
+        
+        count += 1
+
+    for item in list:
+        if item[1].lower() in reserved_words:
+            item[0] = "reserved"
+
+    return list
 
 
 
@@ -331,6 +538,15 @@ txtInput.bind("<Configure>", lines)
 txtInput.bind("<Motion>", lines)
 txtInput.bind("<Button>", positionPush)
 txtInput.bind("<KeyPress>", position)
+
+
+##-------Configure for paint words--------##
+txtInput.tag_config('reserved', foreground='#56cdff')
+txtInput.tag_config('variable', foreground='#d8d8ce')
+txtInput.tag_config('number', foreground='#6c83fa')
+txtInput.tag_config('string', foreground='#ec9a32')
+txtInput.tag_config('comment', foreground='#858585')
+txtInput.tag_config('other', foreground='#d8d8ce')
 
 
 ##-------Scroll for Input--------##

@@ -17,6 +17,8 @@ class Arithmetic_Operator(Enum):
     POWER = 5
     MODULS = 6
     UMINUS = 7
+    INC = 8
+    DEC = 9
 
 
 class Relational_Operators(Enum):

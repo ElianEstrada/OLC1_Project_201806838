@@ -1,5 +1,7 @@
+from src.Expression.Identifier import Identifier
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Errors import Error
+from src.SymbolTable.Symbol import Symbol
 from src.SymbolTable.Type import type, Arithmetic_Operator
 
 class Arithmetic(Instruction):
@@ -217,14 +219,37 @@ class Arithmetic(Instruction):
                     return Error("Semantic", "Cannot divide by zero", self.row, self.column)
         else:
             
-            if self.__exp1.get_type() == type.INTEGGER:
-                self.__type = type.INTEGGER
-                return -int(left)
-            elif self.__exp1.get_type() == type.FLOAT:
-                self.__type = type.FLOAT
-                return -float(left)
-            else:
-                return Error("Semantic", f"The type: {self.__exp1.get_type().name} cannot be operated whit operator: -", self.row, self.column)
+            if self.__operator == Arithmetic_Operator.UMINUS:
+                if self.__exp1.get_type() == type.INTEGGER:
+                    self.__type = type.INTEGGER
+                    return -int(left)
+                elif self.__exp1.get_type() == type.FLOAT:
+                    self.__type = type.FLOAT
+                    return -float(left)
+                else:
+                    return Error("Semantic", f"The type: {self.__exp1.get_type().name} cannot be operated whit operator: -", self.row, self.column)
+
+            elif self.__operator in (Arithmetic_Operator.INC, Arithmetic_Operator.DEC):
+                if isinstance(self.__exp1, Identifier):
+                    if self.__exp1.get_type() in (type.INTEGGER, type.FLOAT):
+                        if self.__operator == Arithmetic_Operator.INC:
+                            symbol = Symbol(self.__exp1.get_id(), self.__exp1.get_type(), self.row, self.column, left + 1)
+                        elif self.__operator == Arithmetic_Operator.DEC:
+                            symbol = Symbol(self.__exp1.get_id(), self.__exp1.get_type(), self.row, self.column, left - 1)
+
+                        result = table.update_table(symbol)
+
+                        if isinstance(result, Error):
+                            return result
+                        
+                        self.__type = self.__exp1.get_type()
+
+                        return symbol.get_value()
+                    else:
+                        return Error("Semantic", f"The type: {self.__exp1.get_type().name} cannot be operated whit operator: {self.__operator.name}", self.row, self.column)
+                else:
+                    return Error("Semantic", f"The operator: {self.__operator.name} can only be used on variables", self.row, self.column)
+
             
     def get_type(self):
         return self.__type

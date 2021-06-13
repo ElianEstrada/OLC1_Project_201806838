@@ -192,6 +192,7 @@ precedence = (
     ('left', 'tk_mult', 'tk_div', 'tk_module'),
     ('left', 'tk_pow'),
     ('right', 'tk_uminus'),
+    ('left', 'tk_inc', 'tk_dec')
 )
 
 #Grammar Definition
@@ -200,12 +201,14 @@ precedence = (
 from src.Abstract.Instruction import Instruction
 from src.Instructions.Print import Print
 from src.Expression.Primitive import Primitive
+from src.Expression.Identifier import Identifier
 from src.Expression.Arithmetic import Arithmetic
 from src.Expression.Relational import Relational
 from src.Expression.Logic import Logic
 from src.SymbolTable.Type import type, Arithmetic_Operator, Relational_Operators, Logical_Operators
 from src.Instructions.Declaration import Declaration
 from src.Instructions.Assignment import Assignment
+from src.Instructions.Inc_Dec import Int_Dec
 from src.SymbolTable.Errors import Error
 
 
@@ -237,6 +240,7 @@ def p_instruction(t):
     '''instruction : statement ptcommaP
                    | assignment ptcommaP 
                    | print ptcommaP
+                   | inc_dec ptcommaP
                    | functions'''
     t[0] = t[1]
 
@@ -290,6 +294,18 @@ def p_function_main(t):
 def p_print(t):
     'print : res_print tk_par_o expression tk_par_c'
     t[0] = Print(t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+
+###---------Production inc_dec---------###
+
+def p_inc_dec(t):
+    '''inc_dec : tk_id tk_inc
+               | tk_id tk_dec'''
+
+    if t[2] == '++':
+        t[0] = Int_Dec(Identifier(t[1], t.lineno(1), find_column(input, t.slice[1])), Arithmetic_Operator.INC, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '--':
+        t[0] = Int_Dec(Identifier(t[1], t.lineno(1), find_column(input, t.slice[1])), Arithmetic_Operator.DEC, t.lineno(2), find_column(input, t.slice[2]))
 
 ###---------Production ptcommaP---------###
 
@@ -355,9 +371,18 @@ def p_expression_unary(t):
     '''expression : tk_sub expression %prec tk_uminus
                   | tk_not expression %prec tk_unot'''
     if t[1] == '-':
-        t[0] = Arithmetic(t[2], None, t[1], t.lineno(1), find_column(input, t.slice[1]))
+        t[0] = Arithmetic(t[2], None, Arithmetic_Operator.UMINUS, t.lineno(1), find_column(input, t.slice[1]))
     if t[1] == '!':
-        t[0] = Logic(t[2], None, Logical_Operators.AND, t.lineno(1), find_column(input, t.slice[1]))
+        t[0] = Logic(t[2], None, Logical_Operators.NOT, t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expression_unary_right(t):
+    '''expression : expression tk_inc
+                  | expression tk_dec'''
+
+    if t[2] == '++':
+        t[0] = Arithmetic(t[1], None, Arithmetic_Operator.INC, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '--':
+        t[0] = Arithmetic(t[1], None, Arithmetic_Operator.DEC, t.lineno(2), find_column(input, t.slice[2]))
 
 def p_expression_primitive_int(t):
     '''
@@ -381,6 +406,10 @@ def p_epression_primitive_bool(t):
     '''expression : res_true
                   | res_false'''
     t[0] = Primitive(type.BOOLEAN, t[1], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expression_primitive_id(t):
+    'expression : tk_id'
+    t[0] = Identifier(t[1], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expression_primitive_null(t):
     'expression : res_null'

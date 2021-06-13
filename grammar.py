@@ -22,8 +22,8 @@ reserved_words = {
     "main": "res_main", 
     "true": "res_true",
     "false": "res_false", 
-    "var": "res_var"
-
+    "var": "res_var", 
+    "null": "res_null"
 }
 
 tokens = [
@@ -204,6 +204,8 @@ from src.Expression.Arithmetic import Arithmetic
 from src.Expression.Relational import Relational
 from src.Expression.Logic import Logic
 from src.SymbolTable.Type import type, Arithmetic_Operator, Relational_Operators, Logical_Operators
+from src.Instructions.Declaration import Declaration
+from src.Instructions.Assignment import Assignment
 from src.SymbolTable.Errors import Error
 
 
@@ -250,16 +252,16 @@ def p_instruction_error(t):
 def p_statement(t):
     'statement : res_var tk_id statementP'
     if t[3] != None:
-        t[0] = t[1] + t[2] + t[3]
+        t[0] = Declaration(t[2], t.lineno(2), find_column(input, t.slice[2]), t[3])
     else:
-        t[0]  = t[1] + t[2]
+        t[0]  = Declaration(t[2], t.lineno(2), find_column(input, t.slice[2]))
 
 
 def p_statementP(t):
     '''statementP : tk_assig expression
                   | empty'''
     if t[1] != None:
-        t[0] = t[1] + str(t[2])
+        t[0] = t[2]
     else:
         t[0] = t[1]
 
@@ -267,7 +269,7 @@ def p_statementP(t):
 
 def p_assignment(t):
     'assignment : tk_id tk_assig expression'
-    t[0] = t[1] + t[2] + str(t[3])
+    t[0] = Assignment(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
 
 
 ###---------Production Functions---------###
@@ -380,6 +382,9 @@ def p_epression_primitive_bool(t):
                   | res_false'''
     t[0] = Primitive(type.BOOLEAN, t[1], t.lineno(1), find_column(input, t.slice[1]))
 
+def p_expression_primitive_null(t):
+    'expression : res_null'
+    t[0] = Primitive(type.NULL, t[1], t.lineno(1), find_column(input, t.slice[1]))
 
 ###---------Production empty---------###
 

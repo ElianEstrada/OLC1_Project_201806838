@@ -71,6 +71,7 @@ class Relational(Instruction):
                         return Error("Semantic", f"The type: {self.__exp2.get_type().name} cannot be operated whit type: STRING", self.row, self.column)
                 else: 
                     return Error("Semantic", f"The type: {self.__exp1.get_type().name} cannot be operated whit operator: {operator}", self.row, self.column)
+                    
             elif self.__operator in (Relational_Operators.GREATER, Relational_Operators.GREATEREQUAL, Relational_Operators.LESS, Relational_Operators.LESSEQUAL):
 
                 if self.__operator == Relational_Operators.GREATER:

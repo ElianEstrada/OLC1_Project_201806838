@@ -75,8 +75,9 @@ def analize(e = None):
     global string
     global pathFileJs
 
+    txtOutput.delete("1.0", "end")
     instructions = parser(txtInput.get('1.0', 'end'))
-    print(instructions[0])
+    #print(instructions)
     ast = Tree(instructions)
     ts_global = SymbolTable()
     ast.set_global_table(ts_global)
@@ -87,6 +88,8 @@ def analize(e = None):
             ast.get_errors().append(value)
             ast.update_console(value)
     
+
+    txtOutput.insert('1.0', ast.get_console())
     print(ast.get_console())
 
 

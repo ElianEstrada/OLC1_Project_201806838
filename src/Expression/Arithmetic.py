@@ -31,7 +31,6 @@ class Arithmetic(Instruction):
         
             if self.__operator == Arithmetic_Operator.ADDITION:
                 
-                print(self.__exp1.get_type())
                 if self.__exp1.get_type() == type.INTEGGER:
 
                     if self.__exp2.get_type() == type.INTEGGER:

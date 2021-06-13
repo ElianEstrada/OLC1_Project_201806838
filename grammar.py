@@ -121,12 +121,12 @@ def t_tk_id(t):
     return t
 
 def t_tk_string(t):
-    r'\".*\"'
+    r'\"(\\"|.)*?\"'
     t.value = t.value[1:-1]
 
     t.value = t.value.replace('\\t', '\t')
     t.value = t.value.replace('\\n', '\n')
-    t.value = t.value.replace('\\"', '\"')
+    #t.value = t.value.replace('\\"', '\"')
     t.value = t.value.replace("\\'", "\'")
     t.value = t.value.replace('\\\\', '\\')
 
@@ -184,8 +184,14 @@ errors = []
 
 #Precedence and Asosiation
 precedence = (
+    ('left', 'tk_or'),
+    ('left', 'tk_and'),
+    ('right', 'tk_unot'),
+    ('left', 'tk_equals', 'tk_different', 'tk_greater', 'tk_greater_equals', 'tk_less', 'tk_less_equals'),
     ('left', 'tk_add', 'tk_sub'),
-    ('left', 'tk_mult', 'tk_div'),
+    ('left', 'tk_mult', 'tk_div', 'tk_module'),
+    ('left', 'tk_pow'),
+    ('right', 'tk_uminus'),
 )
 
 #Grammar Definition
@@ -195,7 +201,9 @@ from src.Abstract.Instruction import Instruction
 from src.Instructions.Print import Print
 from src.Expression.Primitive import Primitive
 from src.Expression.Arithmetic import Arithmetic
-from src.SymbolTable.Type import type, Arithmetic_Operator
+from src.Expression.Relational import Relational
+from src.Expression.Logic import Logic
+from src.SymbolTable.Type import type, Arithmetic_Operator, Relational_Operators, Logical_Operators
 from src.SymbolTable.Errors import Error
 
 
@@ -291,21 +299,87 @@ def p_ptcommaP(t):
 
 ###---------Production Expression---------###
 
+def p_grouping_expression(t):
+    'expression : tk_par_o expression tk_par_c'
+    t[0] = t[2]
+
 def p_expression_binary(t):
     '''expression : expression tk_add expression
-                  | expression tk_sub expression'''
+                  | expression tk_sub expression
+                  | expression tk_mult expression
+                  | expression tk_div expression
+                  | expression tk_module expression
+                  | expression tk_pow expression
+                  | expression tk_equals expression
+                  | expression tk_different expression
+                  | expression tk_greater expression
+                  | expression tk_greater_equals expression
+                  | expression tk_less expression
+                  | expression tk_less_equals expression
+                  | expression tk_and expression
+                  | expression tk_or expression'''
     
     if t[2] == '+':
         t[0] = Arithmetic(t[1], t[3], Arithmetic_Operator.ADDITION, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '-':
         t[0] = Arithmetic(t[1], t[3], Arithmetic_Operator.SUBSTRACTION, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '*':
+        t[0] = Arithmetic(t[1], t[3], Arithmetic_Operator.MULTIPLICATION, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '/':
+        t[0] = Arithmetic(t[1], t[3], Arithmetic_Operator.DIVISION, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '%':
+        t[0] = Arithmetic(t[1], t[3], Arithmetic_Operator.MODULS, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '**':
+        t[0] = Arithmetic(t[1], t[3], Arithmetic_Operator.POWER, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '==':
+        t[0] = Relational(t[1], t[3], Relational_Operators.EQUAL, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '=!':
+        t[0] = Relational(t[1], t[3], Relational_Operators.UNEQUAL, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '>':
+        t[0] = Relational(t[1], t[3], Relational_Operators.GREATER, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '>=':
+        t[0] = Relational(t[1], t[3], Relational_Operators.GREATEREQUAL, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '<':
+        t[0] = Relational(t[1], t[3], Relational_Operators.LESS, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '<=':
+        t[0] = Relational(t[1], t[3], Relational_Operators.LESSEQUAL, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '&&':
+        t[0] = Logic(t[1], t[3], Logical_Operators.AND, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[2] == '||':
+        t[0] = Logic(t[1], t[3], Logical_Operators.OR, t.lineno(2), find_column(input, t.slice[2]))
 
 
-def p_expression_primitive(t):
+def p_expression_unary(t):
+    '''expression : tk_sub expression %prec tk_uminus
+                  | tk_not expression %prec tk_unot'''
+    if t[1] == '-':
+        t[0] = Arithmetic(t[2], None, t[1], t.lineno(1), find_column(input, t.slice[1]))
+    if t[1] == '!':
+        t[0] = Logic(t[2], None, Logical_Operators.AND, t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expression_primitive_int(t):
     '''
     expression :  tk_int
     '''
     t[0] = Primitive(type.INTEGGER, t[1], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expression_primitive_float(t):
+    'expression : tk_decimal'
+    t[0] = Primitive(type.FLOAT, t[1], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expression_primitive_string(t):
+    'expression : tk_string'
+    t[0] = Primitive(type.STRING, t[1], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expression_primitive_char(t):
+    'expression : tk_char'
+    t[0] = Primitive(type.CHAR, t[1], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_epression_primitive_bool(t):
+    '''expression : res_true
+                  | res_false'''
+    t[0] = Primitive(type.BOOLEAN, t[1], t.lineno(1), find_column(input, t.slice[1]))
+
 
 ###---------Production empty---------###
 

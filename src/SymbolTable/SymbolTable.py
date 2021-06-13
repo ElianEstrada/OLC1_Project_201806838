@@ -24,29 +24,29 @@ class SymbolTable:
         current_table = self
 
         while(current_table != None):
-            if id in self.__table:
-                return self.__table[id]
+            if id in current_table.__table:
+                return current_table.__table[id]
             current_table = current_table.__prev
         return None
 
     def update_table(self, symbol):
         current_table = self
         while(current_table != None):
-            if symbol.get_id() in self.__table:
+            if symbol.get_id() in current_table.__table:
 
-                if self.__table[symbol.get_id()].get_type() == symbol.get_type():    
-                    self.__table[symbol.get_id()].set_value(symbol.get_value())
+                if current_table.__table[symbol.get_id()].get_type() == symbol.get_type():    
+                    current_table.__table[symbol.get_id()].set_value(symbol.get_value())
 
                     return None
 
-                elif self.__table[symbol.get_id()].get_type() == type.NULL or symbol.get_type() == type.NULL:
-                    self.__table[symbol.get_id()].set_value(symbol.get_value())
-                    self.__table[symbol.get_id()].set_type(symbol.get_type())
+                elif current_table.__table[symbol.get_id()].get_type() == type.NULL or symbol.get_type() == type.NULL:
+                    current_table.__table[symbol.get_id()].set_value(symbol.get_value())
+                    current_table.__table[symbol.get_id()].set_type(symbol.get_type())
 
                     return None
 
                 else:
-                    return Error("Semantic", f"Cannot assign value of type: {symbol.get_type()} in a variable of type: {self.__table[symbol.get_id()].get_type()}")
+                    return Error("Semantic", f"Cannot assign value of type: {symbol.get_type()} in a variable of type: {current_table.__table[symbol.get_id()].get_type()}")
 
             current_table = current_table.__prev
         return Error("Semantic", f"The id: {symbol.get_id()} doesn't exist in current context", self.row, self.column)

@@ -209,6 +209,8 @@ from src.SymbolTable.Type import type, Arithmetic_Operator, Relational_Operators
 from src.Instructions.Declaration import Declaration
 from src.Instructions.Assignment import Assignment
 from src.Instructions.Inc_Dec import Int_Dec
+from src.Instructions.If import If
+from src.Instructions.While import While
 from src.SymbolTable.Errors import Error
 
 
@@ -241,6 +243,8 @@ def p_instruction(t):
                    | assignment ptcommaP 
                    | print ptcommaP
                    | inc_dec ptcommaP
+                   | conditional
+                   | loops
                    | functions'''
     t[0] = t[1]
 
@@ -306,6 +310,40 @@ def p_inc_dec(t):
         t[0] = Int_Dec(Identifier(t[1], t.lineno(1), find_column(input, t.slice[1])), Arithmetic_Operator.INC, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '--':
         t[0] = Int_Dec(Identifier(t[1], t.lineno(1), find_column(input, t.slice[1])), Arithmetic_Operator.DEC, t.lineno(2), find_column(input, t.slice[2]))
+
+
+###---------Production Conditional---------###
+
+def p_conditionals(t):
+    '''conditional : con_if'''
+    t[0] = t[1]
+
+def p_conditional_if(t):
+    'con_if : res_if tk_par_o expression tk_par_c tk_key_o instructions tk_key_c'
+    t[0] = If(t[3], t[6], None, None, t.lineno(1), find_column(input, t.slice[1]))
+
+def p_conditional_if_else(t):
+    'con_if : res_if tk_par_o expression tk_par_c tk_key_o instructions tk_key_c res_else tk_key_o instructions tk_key_c'
+    t[0] = If(t[3], t[6], t[10], None, t.lineno(1), find_column(input, t.slice[1]))
+
+def p_conditional_if_else_if(t):
+    'con_if : res_if tk_par_o expression tk_par_c tk_key_o instructions tk_key_c res_else con_if'
+    t[0] = If(t[3], t[6], None, t[9], t.lineno(1), find_column(input, t.slice[1]))
+
+
+
+###---------Production Loops---------###
+
+def p_loops(t):
+    '''loops : loop_while'''
+
+    t[0] = t[1]
+
+
+def p_loops_while(t):
+    'loop_while : res_while tk_par_o expression tk_par_c tk_key_o instructions tk_key_c'
+
+    t[0] = While(t[3], t[6], t.lineno(1), find_column(input, t.slice[1]))
 
 ###---------Production ptcommaP---------###
 

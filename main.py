@@ -529,7 +529,7 @@ txtLine.grid(row = 2, column = 0, pady = 24, padx = 0, sticky="ew")
 ##-------Text Area for Input--------##
 txtInput = Text(myFrame2, wrap = "word", width = 60, height = 30, font = ("Consolas", 12))
 txtInput.focus()
-txtInput.config(bg="#0F111A", fg="white", insertbackground="white", border=0)
+txtInput.config(bg="#0F111A", fg="white", insertbackground="white", border=0, tabs=('0.8c'))
 txtInput.grid(row = 2, column = 1, sticky="ns", pady = 24, padx= 0)
 #txtInput.bind("<Return>", lines)
 #txtInput.bind("<BackSpace>", lines)
@@ -560,7 +560,7 @@ txtLine['yscrollcommand'] = scroll_input.set
 ##-------Text Area for Output--------##
 txtOutput = Text(myFrame2, wrap = WORD, width = 60, height = 30, font = ("Consolas", 12))
 txtOutput.focus()
-txtOutput.config(bg="#090b10", fg="white", insertbackground="white")
+txtOutput.config(bg="#090b10", fg="white", insertbackground="white", tabs=('0.8c'))
 txtOutput.grid(row = 2, column = 4, sticky="ns", pady = 24)
 txtOutput.bind("<Key>", lambda a: "break")
 

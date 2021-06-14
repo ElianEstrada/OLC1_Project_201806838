@@ -211,6 +211,7 @@ from src.Instructions.Assignment import Assignment
 from src.Instructions.Inc_Dec import Int_Dec
 from src.Instructions.If import If
 from src.Instructions.While import While
+from src.Instructions.For import For
 from src.SymbolTable.Errors import Error
 
 
@@ -335,7 +336,8 @@ def p_conditional_if_else_if(t):
 ###---------Production Loops---------###
 
 def p_loops(t):
-    '''loops : loop_while'''
+    '''loops : loop_while
+             | loop_for'''
 
     t[0] = t[1]
 
@@ -344,6 +346,23 @@ def p_loops_while(t):
     'loop_while : res_while tk_par_o expression tk_par_c tk_key_o instructions tk_key_c'
 
     t[0] = While(t[3], t[6], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_loops_for(t):
+    'loop_for : res_for tk_par_o for_init tk_dotcomma expression tk_dotcomma for_advance tk_par_c tk_key_o instructions tk_key_c'
+
+    t[0] = For(t[3], t[5], t[7], t[10], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_loops_for_init(t):
+    '''for_init : statement
+                | assignment'''
+    
+    t[0] = t[1]
+
+def p_loops_for_advance(t):
+    '''for_advance : inc_dec
+                   | assignment'''
+
+    t[0] = t[1]
 
 ###---------Production ptcommaP---------###
 

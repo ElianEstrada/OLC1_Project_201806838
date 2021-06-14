@@ -1,5 +1,6 @@
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.Abstract.Instruction import Instruction
+from src.Instructions.Declaration import Declaration
 from src.SymbolTable.Type import type
 from src.SymbolTable.Errors import Error
 
@@ -17,14 +18,25 @@ class For(Instruction):
     
     def interpret(self, tree, table):
 
-        init = self.__init.interpret(tree, table)
+
+        new_table = None
+        declar_flag = False
+        if isinstance(self.__init, Declaration):
+            new_table = SymbolTable(table)
+            declar_flag = True
+            init = self.__init.interpret(tree, new_table)
+        else:
+            init = self.__init.interpret(tree, table)
 
         if isinstance(init, Error):
             return init
 
         while True:
 
-            flag = self.__condition.interpret(tree, table)
+            if new_table == None:
+                flag = self.__condition.interpret(tree, table)
+            else:
+                flag = self.__condition.interpret(tree, new_table)
 
             if isinstance(flag, Error):
                 return flag
@@ -32,7 +44,10 @@ class For(Instruction):
             if self.__condition.get_type() == type.BOOLEAN:
                 if flag == "true":
 
-                    new_table = SymbolTable(table)
+                    if not declar_flag:
+                        new_table = SymbolTable(table)
+                    else:
+                        new_table = SymbolTable(new_table)
 
                     for item in self.__instructions:
                         instruction = item.interpret(tree, new_table)
@@ -42,7 +57,7 @@ class For(Instruction):
                             tree.update_console(instruction)
 
                     advance = self.__advance.interpret(tree, new_table)
-
+                    
                     if isinstance(advance, Error):
                         return advance
                 else:

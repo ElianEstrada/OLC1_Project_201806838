@@ -126,7 +126,7 @@ def t_tk_string(t):
 
     t.value = t.value.replace('\\t', '\t')
     t.value = t.value.replace('\\n', '\n')
-    #t.value = t.value.replace('\\"', '\"')
+    t.value = t.value.replace('\\"', '\"')
     t.value = t.value.replace("\\'", "\'")
     t.value = t.value.replace('\\\\', '\\')
 

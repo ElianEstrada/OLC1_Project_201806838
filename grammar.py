@@ -175,7 +175,7 @@ def find_column(input_token, token):
     line_start = input_token.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
-from tkinter.constants import NONE
+from tkinter.constants import NONE, SW
 import ply.lex as lex
 lexer = lex.lex()
 
@@ -210,8 +210,11 @@ from src.Instructions.Declaration import Declaration
 from src.Instructions.Assignment import Assignment
 from src.Instructions.Inc_Dec import Int_Dec
 from src.Instructions.If import If
+from src.Instructions.Switch import Switch
+from src.Instructions.Case import Case
 from src.Instructions.While import While
 from src.Instructions.For import For
+from src.Instructions.Break import Break
 from src.SymbolTable.Errors import Error
 
 
@@ -246,6 +249,7 @@ def p_instruction(t):
                    | inc_dec ptcommaP
                    | conditional
                    | loops
+                   | transfer ptcommaP
                    | functions'''
     t[0] = t[1]
 
@@ -316,7 +320,8 @@ def p_inc_dec(t):
 ###---------Production Conditional---------###
 
 def p_conditionals(t):
-    '''conditional : con_if'''
+    '''conditional : con_if
+                   | con_switch'''
     t[0] = t[1]
 
 def p_conditional_if(t):
@@ -331,6 +336,43 @@ def p_conditional_if_else_if(t):
     'con_if : res_if tk_par_o expression tk_par_c tk_key_o instructions tk_key_c res_else con_if'
     t[0] = If(t[3], t[6], None, t[9], t.lineno(1), find_column(input, t.slice[1]))
 
+
+def p_conditional_switch_default(t):
+    'con_switch : res_switch tk_par_o expression tk_par_c tk_key_o default tk_key_c'
+    t[0] = Switch(t[3], None, t[6], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_conditional_switch_case(t):
+    'con_switch : res_switch tk_par_o expression tk_par_c tk_key_o list_case tk_key_c'
+    t[0] = Switch(t[3], t[6], None, t.lineno(1), find_column(input, t.slice[1]))
+
+def p_conditional_switch(t):
+    'con_switch : res_switch tk_par_o expression tk_par_c tk_key_o list_case default tk_key_c'
+    t[0] = Switch(t[3], t[6], t[7], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_conditional_switch_list_case(t):
+    'list_case : list_case case'
+    
+    if t[2] != None:
+        t[1].append(t[2])
+    t[0] = t[1]
+
+
+def p_conditional_case(t):
+    'list_case : case'
+    if t[1] == None:
+        t[0] = []
+    else:
+        t[0] = [t[1]]
+
+def p_case(t):
+    'case : res_case expression tk_twodot instructions'
+
+    t[0] = Case(t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
+
+
+def p_default(t):
+    'default : res_default tk_twodot instructions'
+    t[0] = t[3]
 
 
 ###---------Production Loops---------###
@@ -363,6 +405,15 @@ def p_loops_for_advance(t):
                    | assignment'''
 
     t[0] = t[1]
+
+
+###---------Production Transfers---------###
+
+def p_transfer_break(t):
+    'transfer : res_break'
+    t[0] = Break(t.lineno(1), find_column(input, t.slice[1]))
+
+
 
 ###---------Production ptcommaP---------###
 

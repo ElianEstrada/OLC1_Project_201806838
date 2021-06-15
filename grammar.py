@@ -168,6 +168,7 @@ def t_newline(t):
 
 def t_error(t):
     print(f"Illegal character '{t.value[0]}'")
+    errors.append(Error("Lexical", f"This is illegal token {t.value[0]}", t.lexer.lineno, find_column(input, t)))
     t.lexer.skip(1)
 
 
@@ -255,7 +256,7 @@ def p_instruction(t):
 
 def p_instruction_error(t):
     'instruction : error tk_dotcomma'
-    print(f"Error sintáctico: {str(t[1].value)}, {t.lineno(1)}, {find_column(input, t.slice[1])}")
+    #print(f"Error sintáctico: {str(t[1].value)}, {t.lineno(1)}, {find_column(input, t.slice[1])}")
     #errors.append(f"Error sintáctico: {str(t[1].value)}, {t.lineno(1)}, {find_column(input, t.slice[1])}")
     errors.append(Error("Sintactic", f"Sintactic error {str(t[1].value)}", t.lineno(1), find_column(input, t.slice[1])))
     t[0] = None
@@ -535,7 +536,7 @@ parser = yacc.yacc()
 
 input = ''
 
-def getErrors():
+def get_errors():
     return errors
 
 def parser(str_input):

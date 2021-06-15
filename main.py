@@ -5,7 +5,7 @@ import os
 import re
 from src.SymbolTable.Errors import Error
 
-from grammar import parser
+from grammar import parser, get_errors
 
 #########------------Dictonary for paint words------------#########
 
@@ -127,6 +127,10 @@ def analize(e = None):
     ast = Tree(instructions)
     ts_global = SymbolTable()
     ast.set_global_table(ts_global)
+
+    for error in get_errors():
+        ast.get_errors().append(error)
+        ast.update_console(error)
 
     for instruction in ast.get_instructions():
         value = instruction.interpret(ast, ts_global)

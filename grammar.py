@@ -199,7 +199,7 @@ precedence = (
 #Grammar Definition
 
 #Abstract
-from src.Abstract.Instruction import Instruction
+#from src.Abstract.Instruction import Instruction
 from src.Instructions.Print import Print
 from src.Expression.Primitive import Primitive
 from src.Expression.Identifier import Identifier

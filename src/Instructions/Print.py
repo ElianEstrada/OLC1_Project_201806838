@@ -18,5 +18,7 @@ class Print(Instruction):
 
         if self.__expression.get_type() == type.ARRAY:
             return Error("Semantic", "Don't print the arrya complet", self.row, self.column)
+        elif self.__expression.get_type() == type.NULL:
+            return Error("Semantic", "NullPointer Exception", self.row, self.column)
 
-        tree.update_console(value)
+        tree.update_console("> " + str(value))

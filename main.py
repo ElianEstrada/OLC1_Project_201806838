@@ -56,10 +56,15 @@ rowCount = 1
 columnCount = 1
 string = ""
 pathFileJs = ""
+errors = []
+count_error = len(errors)
 
 ###---------New document function---------###
 def new(): 
+    global fileInput
+    fileInput = ""
     txtInput.delete(1.0, END)
+    txtOutput.delete(1.0, END)
     positionPush()
     lines()
 
@@ -67,7 +72,9 @@ def new():
 ###---------Open File function---------###
 def openFile(e = None): 
     global fileInput
-    fileInput = filedialog.askopenfile(title = "Abrir Archivo")
+    global errors
+    errors = []
+    fileInput = filedialog.askopenfile(title = "Open File", filetypes = [("JPR files", "*.jpr")])
 
     fileText = open(fileInput.name)
     text = fileText.read()
@@ -78,12 +85,14 @@ def openFile(e = None):
         txtInput.insert(INSERT, item[1], item[0])
     positionPush()
     fileText.close()
+    txtOutput.delete("1.0", "end")
+    lbl_error_count.config(text = len(errors))
     lines()
 
 
 ###---------Exit Applicatoin function---------###
 def exit():
-    value = messagebox.askokcancel("Salir", "Está seguro que desea salir?")
+    value = messagebox.askokcancel("Exit", "Are you sure you want to go out?")
     if value: 
         root.destroy()
 
@@ -92,10 +101,15 @@ def exit():
 def save_as(e = None): 
     global fileInput
 
-    save_file = filedialog.asksaveasfile(title = "Guardar Archivo")
+    text = txtInput.get("1.0", "end")
+    txtInput.delete("1.0", "end")
+    for item in paint_words(text):
+        txtInput.insert(INSERT, item[1], item[0])
+
+    save_file = filedialog.asksaveasfile(title = "Save File", filetypes = [("JPR files", "*.jpr")], defaultextension = '.jpr')
     with open(save_file.name, "w+") as fileSave:
         fileSave.write(txtInput.get(1.0, END))
-    fileInput = save_file.name
+    fileInput = save_file
 
 
 ###---------Save function---------###
@@ -105,6 +119,11 @@ def save(e = None):
     if fileInput == "": 
         save_as()
     else: 
+        text = txtInput.get("1.0", "end")
+        txtInput.delete("1.0", "end")
+        for item in paint_words(text):
+            txtInput.insert(INSERT, item[1], item[0])
+
         with open(fileInput.name, "w") as fileSave: 
             fileSave.write(txtInput.get(1.0, END))
 
@@ -124,8 +143,16 @@ def analize(e = None):
     global fileInput
     global string
     global pathFileJs
+    global errors
 
+    errors = []
     txtOutput.delete("1.0", "end")
+
+    text = txtInput.get("1.0", "end")
+    txtInput.delete("1.0", "end")
+    for item in paint_words(text):
+        txtInput.insert(INSERT, item[1], item[0])
+
     instructions = parser(txtInput.get('1.0', 'end'))
     #print(instructions)
     ast = Tree(instructions)
@@ -179,8 +206,129 @@ def analize(e = None):
             ast.update_console(error)
  
     txtOutput.insert('1.0', ast.get_console())
+    errors = ast.get_errors()
+    lbl_error_count.config(text = len(errors))
     print(ast.get_console())
 
+
+def report_error(e = None):
+    lexical = ""
+    count_lex = 1
+    sintactic = ""
+    count_sint = 1
+    semantic = ""
+    count_sem = 1
+
+    for error in errors:
+        if error.get_type() == "Lexical":
+            lexical += f"""
+                                            <tr>
+                                                <td> {count_lex} </td>
+                                                <td> {error.get_description()} </td>
+                                                <td> {error.get_row()} </td>
+                                                <td> {error.get_column()} </td>
+                                            </tr>"""
+            count_lex += 1
+        elif error.get_type() == "Sintactic":
+            sintactic += f"""
+                                            <tr>
+                                                <td> {count_sint} </td>
+                                                <td> {error.get_description()} </td>
+                                                <td> {error.get_row()} </td>
+                                                <td> {error.get_column()} </td>
+                                            </tr>"""
+            count_sint += 1
+        else:
+            semantic += f"""
+                                            <tr>
+                                                <td> {count_sem} </td>
+                                                <td> {error.get_description()} </td>
+                                                <td> {error.get_row()} </td>
+                                                <td> {error.get_column()} </td>
+                                            </tr>"""
+            count_sem += 1
+
+    content = f"""
+            <!DOCTYPE html>
+                <html>
+                    <head>
+                        <title>
+                            Bug Report 
+                        </title>
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+                    </head>
+                    <body class="container grey darken-4 white-text">
+                        <h1> <center> Report Errors </center> </h1>
+                        <ul class = "collapsible">
+                            <li class = "active">
+                                <div class = "collapsible-header grey darken-2"> Lexical Errors </div>
+                                <div class="collapsible-body">
+                                    <table class ="striped">
+                                        <thead>
+                                            <tr>
+                                                <th> No. </th>
+                                                <th> Description </th>
+                                                <th> Line </th>
+                                                <th> Column </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>{lexical}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                            <li class = "active">
+                                <div class = "collapsible-header grey darken-2"> Sintactic Errors </div>
+                                <div class="collapsible-body">
+                                    <table class ="striped">
+                                        <thead>
+                                            <tr>
+                                                <th> No. </th>
+                                                <th> Description </th>
+                                                <th> Line </th>
+                                                <th> Column </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>{sintactic}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                            <li class = "active">
+                                <div class = "collapsible-header grey darken-2"> Semantic Errors </div>
+                                <div class="collapsible-body">
+                                    <table class ="striped">
+                                        <thead>
+                                            <tr>
+                                                <th> No. </th>
+                                                <th> Description </th>
+                                                <th> Line </th>
+                                                <th> Column </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>{semantic}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                        <script>
+                            M.AutoInit();
+                        </script>
+                    </body>
+            </html>"""
+
+    #print(content)
+
+    os.makedirs('report', exist_ok=True)
+
+    with open("report/errors.html", "w+") as fileSave: 
+            fileSave.write(content)
+
+    if os.name == 'nt':
+        dir_name = os.path.dirname(__file__)
+        os.startfile(dir_name + '\\report\\errors.html')
 
 
 def paint_words(text):
@@ -458,6 +606,18 @@ lblColumn.grid(row = 0, column = 3)
 lblColumn2 = Label(myFrame, text= columnCount, fg="white", bg= "#0e8dac", font=("Consolas", 12))
 lblColumn2.grid(row = 0, column = 4)
 
+##-------Label Error Img------##
+img_error = PhotoImage(file = "./img/errors.png")
+img_error.configure(height = 20)
+lbl_error = Label(myFrame, image=img_error, bg="#0e8dac")
+#lbl_open.config(cursor = "hand1")
+lbl_error.grid(row = 0, column = 5, padx = (20, 0))#, pady = 20, padx = 0)
+#lbl_open.bind("<Button>", openFile)
+
+##-------Label Error count------##
+lbl_error_count = Label(myFrame, bg="#0e8dac", fg="white", text=count_error, font=("Consolas", 12))
+lbl_error_count.grid(row = 0, column = 6)
+
 
 ##-------Left Frame for functions------##
 myFrame3 = Frame()
@@ -492,7 +652,7 @@ lbl_save_as.bind("<Button>", save_as)
 img_play = PhotoImage(file = "./img/play.png")
 img_play.configure(width = 40)
 lblPlay = Label(myFrame3, image=img_play, bg="#090b1f", width=25)
-lblPlay.config(cursor = "hand1", )
+lblPlay.config(cursor = "hand1")
 lblPlay.grid(row = 3, column = 0, pady = 0, padx = 0)
 lblPlay.bind("<Button>", analize)
 
@@ -500,8 +660,17 @@ lblPlay.bind("<Button>", analize)
 img_debug = PhotoImage(file = "./img/bug.png")
 img_debug.configure(width = 40)
 lbl_debug = Label(myFrame3, image=img_debug, bg="#090b1f", width=25)
-lbl_debug.config(cursor = "hand1", )
+lbl_debug.config(cursor = "hand1")
 lbl_debug.grid(row = 4, column = 0, pady = 20, padx = 0)
+#lbl_debug.bind("<Button>", analize)
+
+##-------Button Report------##
+img_report = PhotoImage(file = "./img/report_error.png")
+img_report.configure(width = 40)
+lbl_report = Label(myFrame3, image=img_report, bg="#090b1f", width=30)
+lbl_report.config(cursor = "hand1")
+lbl_report.grid(row = 5, column = 0, pady = 0, padx = 0)
+lbl_report.bind("<Button>", report_error)
 #lbl_debug.bind("<Button>", analize)
 
 
@@ -565,15 +734,15 @@ barMenu.add_cascade(label =  "Reportes", menu = reportMenu)
 ##-------Text Area for lines--------##
 txtLine = Text(myFrame2, width = 3, height = 30, font = ("Consolas", 12))
 txtLine.config(bg="#0f111a", fg="gray", border = 0)
-txtLine.grid(row = 2, column = 0, pady = 24, padx = 0, sticky="ew")
+txtLine.grid(row = 2, column = 0, pady = (24, 0), padx = 0, sticky="nsew")
 
 
 
 ##-------Text Area for Input--------##
-txtInput = Text(myFrame2, wrap = "word", width = 60, height = 30, font = ("Consolas", 12))
+txtInput = Text(myFrame2, wrap = "none", width = 60, height = 30, font = ("Consolas", 12))
 txtInput.focus()
 txtInput.config(bg="#0F111A", fg="white", insertbackground="white", border=0, tabs=('0.8c'))
-txtInput.grid(row = 2, column = 1, sticky="ns", pady = 24, padx= 0)
+txtInput.grid(row = 2, column = 1, sticky="ns", pady = (24, 0), padx= 0)
 #txtInput.bind("<Return>", lines)
 #txtInput.bind("<BackSpace>", lines)
 txtInput.bind("<<Change>>", lines)
@@ -592,25 +761,32 @@ txtInput.tag_config('comment', foreground='#858585')
 txtInput.tag_config('other', foreground='#d8d8ce')
 
 
-##-------Scroll for Input--------##
+##-------Scroll for Input Vertical--------##
 scroll_input = Scrollbar(myFrame2, command=txtInput.yview)
-scroll_input.grid(row = 2, column = 2, sticky="ns", pady = 24)
+scroll_input.grid(row = 2, column = 2, sticky="ns", pady = (24, 0))
 scroll_input.config(width=12)
 txtInput['yscrollcommand'] = scroll_input.set
 txtLine['yscrollcommand'] = scroll_input.set
 
 
+##-------Scroll for Input Horizontal--------##
+scroll_input = Scrollbar(myFrame2, command=txtInput.xview, orient="horizontal", background='blue')
+scroll_input.grid(row = 3, column = 0, columnspan=3, sticky="ew", pady=(0, 24))
+scroll_input.config(width=12)
+txtInput['xscrollcommand'] = scroll_input.set
+txtLine['xscrollcommand'] = scroll_input.set
+
 ##-------Text Area for Output--------##
 txtOutput = Text(myFrame2, wrap = WORD, width = 60, height = 30, font = ("Consolas", 12))
 txtOutput.focus()
 txtOutput.config(bg="#090b10", fg="white", insertbackground="white", tabs=('0.8c'))
-txtOutput.grid(row = 2, column = 4, sticky="ns", pady = 24)
+txtOutput.grid(row = 2, column = 4, sticky="ns", pady = (24, 0))
 txtOutput.bind("<Key>", lambda a: "break")
 
 
 ##-------Scroll for Output--------##
 scroll_output = Scrollbar(myFrame2, command=txtInput.yview)
-scroll_output.grid(row = 2, column = 5, sticky="ns", pady = 24)
+scroll_output.grid(row = 2, column = 5, sticky="ns", pady = (24, 0))
 scroll_output.config(width=12)
 txtOutput['yscrollcommand'] = scroll_output.set
 

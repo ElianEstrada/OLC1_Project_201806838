@@ -335,6 +335,7 @@ def paint_words(text):
     list = []
     value = ''
     c = ''
+    flag = False
     count = 0
 
     while count < len(text):
@@ -359,12 +360,25 @@ def paint_words(text):
             count += 1
             while count < len(text):
                 c = text[count]
+
+                if c == '\n':
+                    if re.match(r'\"(\\"|.)*?\"', value):
+                        str_in = []
+                        str_in.append("string")
+                        str_in.append(value)
+                        list.append(str_in)
+                        #value = ''
+                    else:
+                        flag = True
+                    break 
+
                 value += c
 
                 if c == '\\':
                     value += text[count + 1]
                     count += 2
                     continue
+
 
                 if c == '"':
                     if re.match(r'\"(\\"|.)*?\"', value):
@@ -373,6 +387,8 @@ def paint_words(text):
                         str_in.append(value)
                         list.append(str_in)
                         value = ''
+                    else:
+                        flag = True
                     break
 
                 count += 1
@@ -396,18 +412,20 @@ def paint_words(text):
                 c = text[count]
                 value += c
 
-                if c == '\\':
+                """ if c == '\\':
                     value += text[count + 1]
                     count += 2
-                    continue
+                    continue """
 
-                if c == '\'':
-                    if re.match(r'\'(\\\'|\\"|\\t|\\n|\\\\|.)\'', value):
+                if c == '\'' or c == '\n':
+                    if re.match(r'\'(\\\'|\\"|\\t|\\n|\\\\|[^\'\\])?\'', value):
                         str_in = []
                         str_in.append("string")
                         str_in.append(value)
                         list.append(str_in)
                         value = ''
+                    else:
+                        flag = True
                     break
 
                 count += 1
@@ -479,11 +497,20 @@ def paint_words(text):
                 num.append(value)
                 list.append(num)
                 value = ''
+                
             other = []
             other.append("other")
             other.append(text[count])
             list.append(other)
         
+        if value != '' and flag:
+            err = []
+            err.append("error")
+            err.append(value)
+            list.append(err)
+            value = ''
+            flag = False
+
         count += 1
 
     for item in list:
@@ -759,6 +786,7 @@ txtInput.tag_config('number', foreground='#6c83fa')
 txtInput.tag_config('string', foreground='#ec9a32')
 txtInput.tag_config('comment', foreground='#858585')
 txtInput.tag_config('other', foreground='#d8d8ce')
+txtInput.tag_config('error', foreground='red')
 
 
 ##-------Scroll for Input Vertical--------##

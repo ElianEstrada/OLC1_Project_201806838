@@ -1,8 +1,9 @@
+from src.Expression.Relational import Relational
 from src.Instructions.Break import Break
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.SymbolTable.Errors import Error
-from src.SymbolTable.Type import type
+from src.SymbolTable.Type import type, Relational_Operators
 
 
 class Switch(Instruction):
@@ -16,14 +17,14 @@ class Switch(Instruction):
         self.__flag = False
 
     
-    def interpret(self, tree, table):
+    """ def interpret(self, tree, table):
 
         value_exp = self.__exp.interpret(tree, table)
 
         if isinstance(value_exp, Error):
             return value_exp
 
-        if self.__exp.get_type() in (type.INTEGGER, type.FLOAT, type.CHAR, type.STRING):
+        if self.__exp.get_type() in (type.INTEGGER, type.FLOAT, type.CHAR, type.STRING, type.BOOLEAN):
             
             if self.__list_case != None:
 
@@ -47,7 +48,35 @@ class Switch(Instruction):
                 return self.execute_instructions(tree, table, self.__default)
 
         else:
-            return Error("Semantic", f"Expression of type {self.__exp.get_type().name} was not expected", self.row, self.column)
+            return Error("Semantic", f"Expression of type {self.__exp.get_type().name} was not expected", self.row, self.column) """
+
+    def interpret(self, tree, table):
+
+        if self.__list_case != None:
+
+            for item in self.__list_case:
+
+                relation = Relational(self.__exp, item.get_value(), Relational_Operators.EQUAL, self.row, self.column)
+
+                result = relation.interpret(tree, table)
+
+                if isinstance(result, Error):
+                    return result
+                
+                if result == "true":
+                    if self.execute_instructions(tree, table, item.get_instructions(), True) == None and not self.__flag:
+                            return None
+                elif self.__flag:
+                        self.__flag = False
+
+                        if self.execute_instructions(tree, table, item.get_instructions(), True) == None and not self.__flag:
+                            return None
+
+            if self.__default != None:
+                    return self.execute_instructions(tree, table, self.__default)
+        
+        elif self.__default != None:
+                return self.execute_instructions(tree, table, self.__default)
 
 
     def execute_instructions(self, tree, table, instructions, flag = False):

@@ -3,7 +3,6 @@ from tkinter.constants import FLAT, GROOVE, RAISED, SEL_FIRST, SEL_LAST, SUNKEN
 
 import os
 import re
-from src.SymbolTable.Errors import Error
 
 from grammar import parser, get_errors
 
@@ -113,6 +112,11 @@ def save(e = None):
 ##Imports for Interpreter
 from src.SymbolTable.Tree import Tree
 from src.SymbolTable.SymbolTable import SymbolTable
+from src.Instructions.Main import Main
+from src.Instructions.Assignment import Assignment
+from src.Instructions.Declaration import Declaration
+from src.SymbolTable.Errors import Error
+from src.Instructions.Break import Break
 
 
 ###---------Analize function---------###
@@ -132,13 +136,48 @@ def analize(e = None):
         ast.get_errors().append(error)
         ast.update_console(error)
 
-    for instruction in ast.get_instructions():
-        value = instruction.interpret(ast, ts_global)
-        if isinstance(value, Error):
-            ast.get_errors().append(value)
-            ast.update_console(value)
-    
 
+    ##-----------First Run for declarations and assignment-----------##
+    for instruction in ast.get_instructions():
+        if isinstance(instruction, (Declaration, Assignment)):
+            value = instruction.interpret(ast, ts_global)
+            if isinstance(value, Error):
+                ast.get_errors().append(value)
+                ast.update_console(value)
+            if isinstance(instruction, Break):
+                error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
+                ast.get_errors().append(error)
+                ast.update_console(error)
+
+    count = 0
+    ##-----------Second Run for main function-----------##
+    for instruction in ast.get_instructions():
+        
+        if isinstance(instruction, Main):
+            count += 1
+
+            if count > 1:
+                error = Error("Semantic", "The main method is already defined", instruction.row, instruction.column) 
+                ast.get_errors().append(error)
+                ast.update_console(error)
+                break
+
+            value = instruction.interpret(ast, ts_global)
+            if isinstance(value, Error):
+                ast.get_errors().append(value)
+                ast.update_console(value)
+            if isinstance(instruction, Break):
+                error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
+                ast.get_errors().append(error)
+                ast.update_console(error)
+    
+    ##-----------Third Run for instruction out main-----------##
+    for instruction in ast.get_instructions():
+        if not isinstance(instruction, (Main, Declaration, Assignment)):
+            error = Error("Semantic", "Instruction outside the main method", instruction.row, instruction.column)
+            ast.get_errors().append(error)
+            ast.update_console(error)
+ 
     txtOutput.insert('1.0', ast.get_console())
     print(ast.get_console())
 

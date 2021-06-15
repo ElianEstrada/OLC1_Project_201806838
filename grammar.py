@@ -176,7 +176,7 @@ def find_column(input_token, token):
     line_start = input_token.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
-from tkinter.constants import NONE, SW
+
 import ply.lex as lex
 lexer = lex.lex()
 
@@ -207,6 +207,7 @@ from src.Expression.Arithmetic import Arithmetic
 from src.Expression.Relational import Relational
 from src.Expression.Logic import Logic
 from src.SymbolTable.Type import type, Arithmetic_Operator, Relational_Operators, Logical_Operators
+from src.Instructions.Main import Main
 from src.Instructions.Declaration import Declaration
 from src.Instructions.Assignment import Assignment
 from src.Instructions.Inc_Dec import Int_Dec
@@ -296,7 +297,7 @@ def p_functions(t):
 
 def p_function_main(t):
     'function_main : res_main tk_par_o tk_par_c tk_key_o instructions tk_key_c'
-    t[0] = t[1] + t[2] + t[3] + t[4] + str(t[5]) + t[6]
+    t[0] = Main(t[5], t.lineno(1), find_column(input, t.slice[1]))
 
 
 ###---------Production print---------###

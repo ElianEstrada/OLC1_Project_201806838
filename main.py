@@ -177,7 +177,7 @@ def analize(e = None):
                 ast.update_console(error)
 
     count = 0
-    ##-----------Second Run for main function-----------##
+    ##-----------Second Run for count main function-----------##
     for instruction in ast.get_instructions():
         
         if isinstance(instruction, Main):
@@ -188,17 +188,21 @@ def analize(e = None):
                 ast.get_errors().append(error)
                 ast.update_console(error)
                 break
-
-            value = instruction.interpret(ast, ts_global)
-            if isinstance(value, Error):
-                ast.get_errors().append(value)
-                ast.update_console(value)
-            if isinstance(instruction, Break):
-                error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
-                ast.get_errors().append(error)
-                ast.update_console(error)
     
-    ##-----------Third Run for instruction out main-----------##
+    if count == 1:
+        ##-----------Third Run for main function interpret-----------##
+        for instruction in ast.get_instructions():
+            if isinstance(instruction, Main):
+                value = instruction.interpret(ast, ts_global)
+                if isinstance(value, Error):
+                    ast.get_errors().append(value)
+                    ast.update_console(value)
+                if isinstance(instruction, Break):
+                    error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
+                    ast.get_errors().append(error)
+                    ast.update_console(error)
+
+    ##-----------Fourth Run for instruction out main-----------##
     for instruction in ast.get_instructions():
         if not isinstance(instruction, (Main, Declaration, Assignment)):
             error = Error("Semantic", "Instruction outside the main method", instruction.row, instruction.column)

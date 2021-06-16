@@ -385,7 +385,7 @@ def paint_words(text):
 
 
                 if c == '"':
-                    if re.match(r'\"(\\"|.)*?\"', value):
+                    if re.match(r'\"(\\\'|\\"|[^\'])*?\"', value):
                         str_in = []
                         str_in.append("string")
                         str_in.append(value)
@@ -416,10 +416,10 @@ def paint_words(text):
                 c = text[count]
                 value += c
 
-                """ if c == '\\':
+                if c == '\\':
                     value += text[count + 1]
                     count += 2
-                    continue """
+                    continue
 
                 if c == '\'' or c == '\n':
                     if re.match(r'\'(\\\'|\\"|\\t|\\n|\\\\|[^\'\\])?\'', value):
@@ -464,6 +464,7 @@ def paint_words(text):
 
                             count += 1
                             c = text[count]
+                            count +=1
                             value += c
                             if re.match(r'\#\*(.|\n)*?\*\#', value):
                                 com_mult = []

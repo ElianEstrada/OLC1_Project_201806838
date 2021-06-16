@@ -1,7 +1,7 @@
 class Symbol:
 
     def __init__(self, id, type, row, column, value):
-        self.__id = id
+        self.__id = id.lower()
         self.__type = type
         self.__row = row
         self.__column = column

@@ -18,12 +18,13 @@ class Relational(Instruction):
 
     def interpret(self, tree, table):
 
-        left = self.__exp1.interpret(tree, table)
-
-        if isinstance(left, Error):
-            return left
         
-        if self.__exp2 != None:
+        if self.__exp2 != None and self.__exp1 != None:
+
+            left = self.__exp1.interpret(tree, table)
+
+            if isinstance(left, Error):
+                return left
             
             right = self.__exp2.interpret(tree, table)
 
@@ -100,7 +101,7 @@ class Relational(Instruction):
             
 
         else: 
-            pass
+            return Error("Semantic", "Expression Expected", self.row, self.column)
 
 
 

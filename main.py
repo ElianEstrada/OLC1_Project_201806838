@@ -154,6 +154,9 @@ def analize(e = None):
         txtInput.insert(INSERT, item[1], item[0])
 
     instructions = parser(txtInput.get('1.0', 'end'))
+    if instructions == None:
+        value = messagebox.showerror("Instructions", "No Instructions for interpret")
+        return
     #print(instructions)
     ast = Tree(instructions)
     ts_global = SymbolTable()
@@ -803,14 +806,14 @@ txtLine['yscrollcommand'] = scroll_input.set
 
 
 ##-------Scroll for Input Horizontal--------##
-scroll_input = Scrollbar(myFrame2, command=txtInput.xview, orient="horizontal", background='blue')
+scroll_input = Scrollbar(myFrame2, command=txtInput.xview, orient="horizontal")
 scroll_input.grid(row = 3, column = 0, columnspan=3, sticky="ew", pady=(0, 24))
 scroll_input.config(width=12)
 txtInput['xscrollcommand'] = scroll_input.set
 txtLine['xscrollcommand'] = scroll_input.set
 
 ##-------Text Area for Output--------##
-txtOutput = Text(myFrame2, wrap = WORD, width = 60, height = 30, font = ("Consolas", 12))
+txtOutput = Text(myFrame2, wrap = 'none', width = 60, height = 30, font = ("Consolas", 12))
 txtOutput.focus()
 txtOutput.config(bg="#090b10", fg="white", insertbackground="white", tabs=('0.8c'))
 txtOutput.grid(row = 2, column = 4, sticky="ns", pady = (24, 0))
@@ -818,11 +821,17 @@ txtOutput.bind("<Key>", lambda a: "break")
 
 
 ##-------Scroll for Output--------##
-scroll_output = Scrollbar(myFrame2, command=txtInput.yview)
+scroll_output = Scrollbar(myFrame2, command=txtOutput.yview)
 scroll_output.grid(row = 2, column = 5, sticky="ns", pady = (24, 0))
 scroll_output.config(width=12)
 txtOutput['yscrollcommand'] = scroll_output.set
 
+
+##-------Scroll for Input Horizontal--------##
+scroll_output = Scrollbar(myFrame2, command=txtOutput.xview, orient="horizontal")
+scroll_output.grid(row = 3, column = 4, columnspan=2, sticky="ew", pady=(0, 24))
+scroll_output.config(width=12)
+txtOutput['xscrollcommand'] = scroll_output.set
 
 root.config(menu = barMenu)
 

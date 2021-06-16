@@ -49,6 +49,6 @@ class SymbolTable:
                     return Error("Semantic", f"Cannot assign value of type: {symbol.get_type()} in a variable of type: {current_table.__table[symbol.get_id()].get_type()}")
 
             current_table = current_table.__prev
-        return Error("Semantic", f"The id: {symbol.get_id()} doesn't exist in current context", self.row, self.column)
+        return Error("Semantic", f"The id: {symbol.get_id()} doesn't exist in current context", symbol.get_row(), symbol.get_column())
 
 

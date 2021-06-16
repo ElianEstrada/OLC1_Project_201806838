@@ -46,7 +46,7 @@ class SymbolTable:
                     return None
 
                 else:
-                    return Error("Semantic", f"Cannot assign value of type: {symbol.get_type()} in a variable of type: {current_table.__table[symbol.get_id()].get_type()}")
+                    return Error("Semantic", f"Cannot assign value of type: {symbol.get_type().name} in a variable of type: {current_table.__table[symbol.get_id()].get_type().name}", symbol.get_row(), symbol.get_column())
 
             current_table = current_table.__prev
         return Error("Semantic", f"The id: {symbol.get_id()} doesn't exist in current context", symbol.get_row(), symbol.get_column())

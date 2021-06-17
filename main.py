@@ -2,6 +2,7 @@ from tkinter import Image, PhotoImage, Tk, Menu, messagebox, filedialog, ttk, La
 from tkinter.constants import FLAT, GROOVE, RAISED, SEL_FIRST, SEL_LAST, SUNKEN
 
 import os
+import subprocess
 import re
 
 from grammar import parser, get_errors
@@ -323,6 +324,9 @@ def report_error(e = None):
     if os.name == 'nt':
         dir_name = os.path.dirname(__file__)
         os.startfile(dir_name + '\\report\\errors.html')
+    else: 
+        dir_name = os.path.dirname(__file__)
+        subprocess.call(["xdg-open", "report/errors.html"])
 
 
 def paint_words(text):
@@ -733,7 +737,7 @@ lblOutput.grid(row = 1, column = 4)
 
 
 ##-------Bar Menú------##
-barMenu = Menu(root, bg="blue")
+barMenu = Menu(root, bg="#090B10", border=0, fg="white")
 
 ##-------File Menu------##
 fileMenu = Menu(barMenu, tearoff = 0, bg="#090B10", fg="white", activebackground="gray")
@@ -755,7 +759,7 @@ barMenu.add_cascade(label =  "Reportes", menu = reportMenu)
 
 ##-------Text Area for lines--------##
 txtLine = Text(myFrame2, width = 3, height = 30, font = ("Consolas", 12))
-txtLine.config(bg="#0f111a", fg="gray", border = 0)
+txtLine.config(bg="#0f111a", fg="gray", borderwidth=0, highlightbackground="#0F111A")
 txtLine.grid(row = 2, column = 0, pady = (24, 0), padx = 0, sticky="nsew")
 
 
@@ -763,7 +767,7 @@ txtLine.grid(row = 2, column = 0, pady = (24, 0), padx = 0, sticky="nsew")
 ##-------Text Area for Input--------##
 txtInput = Text(myFrame2, wrap = "none", width = 60, height = 30, font = ("Consolas", 12))
 txtInput.focus()
-txtInput.config(bg="#0F111A", fg="white", insertbackground="white", border=0, tabs=('0.8c'))
+txtInput.config(bg="#0F111A", fg="white", insertbackground="white", border=0, tabs=('0.8c'), highlightbackground="#0F111A", borderwidth=0)
 txtInput.grid(row = 2, column = 1, sticky="ns", pady = (24, 0), padx= 0)
 #txtInput.bind("<Return>", lines)
 #txtInput.bind("<BackSpace>", lines)
@@ -785,7 +789,7 @@ txtInput.tag_config('error', foreground='red')
 
 
 ##-------Scroll for Input Vertical--------##
-scroll_input = Scrollbar(myFrame2, command=txtInput.yview)
+scroll_input = Scrollbar(myFrame2, command=txtInput.yview, bg="#090B10", activebackground="gray")
 scroll_input.grid(row = 2, column = 2, sticky="ns", pady = (24, 0))
 scroll_input.config(width=12)
 txtInput['yscrollcommand'] = scroll_input.set
@@ -793,7 +797,7 @@ txtLine['yscrollcommand'] = scroll_input.set
 
 
 ##-------Scroll for Input Horizontal--------##
-scroll_input = Scrollbar(myFrame2, command=txtInput.xview, orient="horizontal")
+scroll_input = Scrollbar(myFrame2, command=txtInput.xview, orient="horizontal",bg="#090B10", activebackground="gray")
 scroll_input.grid(row = 3, column = 0, columnspan=3, sticky="ew", pady=(0, 24))
 scroll_input.config(width=12)
 txtInput['xscrollcommand'] = scroll_input.set
@@ -802,20 +806,20 @@ txtLine['xscrollcommand'] = scroll_input.set
 ##-------Text Area for Output--------##
 txtOutput = Text(myFrame2, wrap = 'none', width = 60, height = 30, font = ("Consolas", 12))
 txtOutput.focus()
-txtOutput.config(bg="#090b10", fg="white", insertbackground="white", tabs=('0.8c'))
+txtOutput.config(bg="#090b10", fg="white", insertbackground="white", tabs=('0.8c'), highlightbackground="#090B10")
 txtOutput.grid(row = 2, column = 4, sticky="ns", pady = (24, 0))
 txtOutput.bind("<Key>", lambda a: "break")
 
 
 ##-------Scroll for Output--------##
-scroll_output = Scrollbar(myFrame2, command=txtOutput.yview)
+scroll_output = Scrollbar(myFrame2, command=txtOutput.yview, bg="#090B10", activebackground="gray")
 scroll_output.grid(row = 2, column = 5, sticky="ns", pady = (24, 0))
 scroll_output.config(width=12)
 txtOutput['yscrollcommand'] = scroll_output.set
 
 
 ##-------Scroll for Input Horizontal--------##
-scroll_output = Scrollbar(myFrame2, command=txtOutput.xview, orient="horizontal")
+scroll_output = Scrollbar(myFrame2, command=txtOutput.xview, orient="horizontal", bg="#090B10", activebackground="gray")
 scroll_output.grid(row = 3, column = 4, columnspan=2, sticky="ew", pady=(0, 24))
 scroll_output.config(width=12)
 txtOutput['xscrollcommand'] = scroll_output.set

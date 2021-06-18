@@ -433,12 +433,12 @@ def p_type(t):
 
     if t[1] == 'int':
         t[0] = type.INTEGGER
-    elif t[0] == 'double':
-        t[0] == type.FLOAT
+    elif t[1] == 'double':
+        t[0] = type.FLOAT
     elif t[1] == 'char':
         t[0] = type.CHAR
-    elif t[0] == 'string':
-        t[0] == type.STRING
+    elif t[1] == 'string':
+        t[0] = type.STRING
 
 
 
@@ -579,4 +579,4 @@ def parser(str_input):
     parser = yacc.yacc()
 
     input = str_input
-    return parser.parse(str_input)
+    return parser.parse(str_input, debug = True)

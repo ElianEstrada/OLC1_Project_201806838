@@ -33,7 +33,11 @@ reserved_words = [
     'true',
     'false',
     'var',
-    'null'
+    'null', 
+    'int',
+    'double',
+    'string',
+    'char'
 ]
 
 

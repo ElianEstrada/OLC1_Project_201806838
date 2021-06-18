@@ -23,7 +23,11 @@ reserved_words = {
     "true": "res_true",
     "false": "res_false", 
     "var": "res_var", 
-    "null": "res_null"
+    "null": "res_null", 
+    "int": "res_int",
+    "double": "res_double",
+    "char": "res_char",
+    "string": "res_string"
 }
 
 tokens = [
@@ -194,6 +198,7 @@ precedence = (
     ('left', 'tk_mult', 'tk_div', 'tk_module'),
     ('left', 'tk_pow'),
     ('right', 'tk_uminus'),
+    ('right', 'tk_fcast'),
     ('left', 'tk_inc', 'tk_dec')
 )
 
@@ -207,6 +212,7 @@ from src.Expression.Identifier import Identifier
 from src.Expression.Arithmetic import Arithmetic
 from src.Expression.Relational import Relational
 from src.Expression.Logic import Logic
+from src.Expression.Casting import Casting
 from src.SymbolTable.Type import type, Arithmetic_Operator, Relational_Operators, Logical_Operators
 from src.Instructions.Main import Main
 from src.Instructions.Declaration import Declaration
@@ -417,6 +423,25 @@ def p_transfer_break(t):
     t[0] = Break(t.lineno(1), find_column(input, t.slice[1]))
 
 
+###---------Production Type---------###
+
+def p_type(t):
+    '''type : res_int
+            | res_char
+            | res_string
+            | res_double'''
+
+    if t[1] == 'int':
+        t[0] = type.INTEGGER
+    elif t[1] == 'double':
+        t[0] = type.FLOAT
+    elif t[1] == 'char':
+        t[0] = type.CHAR
+    elif t[1] == 'string':
+        t[0] = type.STRING
+
+
+
 
 ###---------Production ptcommaP---------###
 
@@ -494,6 +519,11 @@ def p_expression_unary_right(t):
         t[0] = Arithmetic(t[1], None, Arithmetic_Operator.INC, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '--':
         t[0] = Arithmetic(t[1], None, Arithmetic_Operator.DEC, t.lineno(2), find_column(input, t.slice[2]))
+
+def p_expression_unary_cast(t):
+    'expression : tk_par_o type tk_par_c expression %prec tk_fcast'
+
+    t[0] = Casting(t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expression_primitive_int(t):
     '''

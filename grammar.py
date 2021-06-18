@@ -135,7 +135,7 @@ def t_tk_string(t):
 
 def t_tk_char(t):
     #r'\'\\?.\''
-    r'\'(\\\'|\\"|\\t|\\n|\\\\|[^\'\\])\''
+    r'\'(\\\'|\\"|\\t|\\n|\\\\|[^\'\\\"])?\''
     
     t.value = t.value[1:-1]
     print(t.value)

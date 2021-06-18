@@ -118,6 +118,7 @@ def t_tk_int(t):
 def t_tk_id(t):
     r'[a-zA-Z][a-zA-Z0-9_]*'
     t.type = reserved_words.get(t.value.lower(), "tk_id")
+    t.value = t.value.lower()
     return t
 
 def t_tk_string(t):

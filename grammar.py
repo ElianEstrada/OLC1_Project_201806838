@@ -579,4 +579,4 @@ def parser(str_input):
     parser = yacc.yacc()
 
     input = str_input
-    return parser.parse(str_input, debug = True)
+    return parser.parse(str_input)

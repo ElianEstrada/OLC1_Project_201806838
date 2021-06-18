@@ -69,8 +69,8 @@ class Switch(Instruction):
                 elif self.__flag:
                         self.__flag = False
 
-                        if self.execute_instructions(tree, table, item.get_instructions(), True) == None and not self.__flag:
-                            return None
+                        # if self.execute_instructions(tree, table, item.get_instructions(), True) == None and not self.__flag:
+                        #     return None
 
             if self.__default != None:
                     return self.execute_instructions(tree, table, self.__default)

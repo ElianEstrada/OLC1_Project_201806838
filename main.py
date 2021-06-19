@@ -37,7 +37,8 @@ reserved_words = [
     'int',
     'double',
     'string',
-    'char'
+    'char', 
+    'boolean'
 ]
 
 

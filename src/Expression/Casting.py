@@ -14,7 +14,7 @@ class Casting(Instruction):
     
     def interpret(self, tree, table):
 
-        if self.__type not in (type.BOOLEAN, type.ARRAY, type.NULL):
+        if self.__type not in (type.ARRAY, type.NULL):
             if self.__exp != None:
 
                 value = self.__exp.interpret(tree, table)
@@ -32,9 +32,15 @@ class Casting(Instruction):
                     
                     elif self.__exp.get_type() == type.CHAR:
                         return ord(value)
+                    
+                    elif self.__exp.get_type() == type.STRING:
+                        try: 
+                            return int(value)
+                        except ValueError:
+                            return Error("Semantic", f"This value: {value} cannot be cast to INTEGGER", self.row, self.column)
 
                     else:
-                        return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type")
+                        return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type", self.row, self.column)
 
                 elif self.__type == type.FLOAT:
 
@@ -47,8 +53,14 @@ class Casting(Instruction):
                     elif self.__exp.get_type() == type.CHAR:
                         return float(ord(value))
 
+                    elif self.__exp.get_type() == type.STRING:
+                        try: 
+                            return float(value)
+                        except ValueError:
+                            return Error("Semantic", f"This value: {value} cannot be cast to FLOAT", self.row, self.column)
+
                     else:
-                        return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type")
+                        return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type", self.row, self.column)
                     
                 elif self.__type == type.STRING:
 
@@ -62,7 +74,7 @@ class Casting(Instruction):
                         return str(value)
 
                     else:
-                        return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type")
+                        return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type", self.row, self.column)
 
                 elif self.__type == type.CHAR:
 
@@ -73,8 +85,17 @@ class Casting(Instruction):
                         return chr(value)
 
                     else:
-                        return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type")
+                        return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type", self.row, self.column)
                 
+                elif self.__type == type.BOOLEAN:
+
+                    if self.__exp.get_type() == type.STRING:
+                        if value.lower() in ("true", "false"):
+                            return value.lower()
+                        else:
+                            return Error("Semantic", f"This value: {value} cannot be cast to BOOLEAN", self.row, self.column)
+                    else:
+                        return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type", self.row, self.column)
         else: 
             return Error("Semantic", f"Can't cast the type: {self.__type.name}")
             

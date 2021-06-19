@@ -27,7 +27,8 @@ reserved_words = {
     "int": "res_int",
     "double": "res_double",
     "char": "res_char",
-    "string": "res_string"
+    "string": "res_string",
+    "boolean": "res_boolean"
 }
 
 tokens = [
@@ -429,7 +430,8 @@ def p_type(t):
     '''type : res_int
             | res_char
             | res_string
-            | res_double'''
+            | res_double
+            | res_boolean'''
 
     if t[1] == 'int':
         t[0] = type.INTEGGER
@@ -439,6 +441,8 @@ def p_type(t):
         t[0] = type.CHAR
     elif t[1] == 'string':
         t[0] = type.STRING
+    elif t[1] == 'boolean':
+        t[0] = type.BOOLEAN
 
 
 

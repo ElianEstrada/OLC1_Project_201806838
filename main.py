@@ -738,7 +738,7 @@ myFrame2.pack(fill = "both", expand = "yes")
 myFrame2.config(bg = "#090B10", width = "920", height = "550")
 
 ##-------Label for Title------##
-lblTitle = Label(myFrame2, text = "ML WEB EDITOR", fg = "white", bg = "#090B10")
+lblTitle = Label(myFrame2, text = "JPR EDITOR", fg = "white", bg = "#090B10")
 lblTitle.config(font = ("Consolas", 28))
 lblTitle.grid(row = 0, columnspan=6)
 #lblTitle.pack(anchor = CENTER)

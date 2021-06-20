@@ -127,7 +127,7 @@ def t_tk_id(t):
     return t
 
 def t_tk_string(t):
-    r'\"(\\\'|\\"|[^\'])*?\"'
+    r'\"(\\\'|\\"|\\\\|\\n|\\t|[^\'\\\"])*?\"'
     t.value = t.value[1:-1]
 
     t.value = t.value.replace('\\t', '\t')

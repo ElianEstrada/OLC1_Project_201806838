@@ -190,33 +190,38 @@ class Arithmetic(Instruction):
 
             elif self.__operator == Arithmetic_Operator.DIVISION:
 
-                if int(right) != 0:
-                    if self.__exp1.get_type() in (type.INTEGGER, type.FLOAT):
+                if self.__exp1.get_type() in (type.INTEGGER, type.FLOAT):
 
-                        if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
+                    if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
+
+                        if int(right) != 0:
                             self.__type = type.FLOAT
-                            return float(left) / float(right)
-                        else:   
-                            return Error("Semantic", f"The type: {self.__exp2.get_type().name} cannot be operated whit type: {self.__exp1.get_type().name}", self.row, self.column)
-                    else: 
-                        return Error("Semantic", f"The type: {self.__exp1.get_type().name} cannot be operated whit operator: /", self.row, self.column)
-                else:
-                    return Error("Semantic", "Cannot divide by zero", self.row, self.column)
+                            return float(left) / float(right)                            
+                        else:
+                            return Error("Semantic", "Cannot divide by zero", self.row, self.column)
+
+                    else:   
+                        return Error("Semantic", f"The type: {self.__exp2.get_type().name} cannot be operated whit type: {self.__exp1.get_type().name}", self.row, self.column)
+                else: 
+                    return Error("Semantic", f"The type: {self.__exp1.get_type().name} cannot be operated whit operator: /", self.row, self.column)
+
             
             elif self.__operator == Arithmetic_Operator.MODULS:
 
-                if int(right) != 0:
-                    if self.__exp1.get_type() in (type.INTEGGER, type.FLOAT):
+                if self.__exp1.get_type() in (type.INTEGGER, type.FLOAT):
 
-                        if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
+                    if self.__exp2.get_type() in (type.INTEGGER, type.FLOAT):
+
+                        if int(right) != 0:
                             self.__type = type.FLOAT
-                            return float(left) % float(right)
-                        else:   
-                            return Error("Semantic", f"The type: {self.__exp2.get_type().name} cannot be operated whit type: {self.__exp1.get_type().name}", self.row, self.column)
-                    else: 
-                        return Error("Semantic", f"The type: {self.__exp1.get_type().name} cannot be operated whit operator: %", self.row, self.column)
-                else:
-                    return Error("Semantic", "Cannot divide by zero", self.row, self.column)
+                            return float(left) % float(right)                            
+                        else:
+                            return Error("Semantic", "Cannot divide by zero", self.row, self.column)
+
+                    else:   
+                        return Error("Semantic", f"The type: {self.__exp2.get_type().name} cannot be operated whit type: {self.__exp1.get_type().name}", self.row, self.column)
+                else: 
+                    return Error("Semantic", f"The type: {self.__exp1.get_type().name} cannot be operated whit operator: %", self.row, self.column)
         else:
             
             if self.__operator == Arithmetic_Operator.UMINUS:

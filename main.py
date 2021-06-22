@@ -38,7 +38,8 @@ reserved_words = [
     'double',
     'string',
     'char', 
-    'boolean'
+    'boolean',
+    'func'
 ]
 
 
@@ -145,6 +146,8 @@ from src.Instructions.Assignment import Assignment
 from src.Instructions.Declaration import Declaration
 from src.SymbolTable.Errors import Error
 from src.Instructions.Break import Break
+from src.Instructions.Function import Function
+from src.Instructions.Return import Return
 
 
 ###---------Analize function---------###
@@ -178,6 +181,8 @@ def analize(e = None):
 
     ##-----------First Run for declarations and assignment-----------##
     for instruction in ast.get_instructions():
+        if isinstance(instruction, Function):
+            ast.add_function(instruction)
         if isinstance(instruction, (Declaration, Assignment)):
             value = instruction.interpret(ast, ts_global)
             if isinstance(value, Error):
@@ -213,10 +218,14 @@ def analize(e = None):
                     error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
                     ast.get_errors().append(error)
                     ast.update_console(error)
+                if isinstance(instruction, Return):
+                    error = Error("Semantic", "The Instruction Return is loop instruction", instruction.row, instruction.column)
+                    ast.get_errors().append(error)
+                    ast.update_console(error)
 
     ##-----------Fourth Run for instruction out main-----------##
     for instruction in ast.get_instructions():
-        if not isinstance(instruction, (Main, Declaration, Assignment)):
+        if not isinstance(instruction, (Main, Declaration, Assignment, Function)):
             error = Error("Semantic", "Instruction outside the main method", instruction.row, instruction.column)
             ast.get_errors().append(error)
             ast.update_console(error)

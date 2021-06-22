@@ -2,6 +2,7 @@ class Tree:
 
     def __init__(self, instructions):
         self.__instructions = instructions
+        self.__functions = []
         self.__errors = []
         self.__console = ""
         self.__global_table = None
@@ -12,6 +13,18 @@ class Tree:
     
     def get_instructions(self):
         return self.__instructions
+
+    def add_function(self, function):
+        self.__functions.append(function)
+    
+    def get_function(self, name):
+
+        for item in self.__functions:
+            if item.get_name() == name:
+                return item
+        
+        return None
+
 
     def set_errors(self, errors):
         self.__errors = errors

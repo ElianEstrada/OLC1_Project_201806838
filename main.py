@@ -37,7 +37,8 @@ reserved_words = [
     'int',
     'double',
     'string',
-    'char'
+    'char', 
+    'boolean'
 ]
 
 
@@ -73,7 +74,7 @@ def openFile(e = None):
 
     txtInput.delete(1.0, END)
 
-    for item in paint_words(text + ' '):
+    for item in paint_words(text):
         txtInput.insert(INSERT, item[1], item[0])
     positionPush()
     fileText.close()
@@ -95,7 +96,7 @@ def save_as(e = None):
 
     text = txtInput.get("1.0", "end")
     txtInput.delete("1.0", "end")
-    for item in paint_words(text):
+    for item in paint_words(text[0:len(text)-1]):
         txtInput.insert(INSERT, item[1], item[0])
 
     save_file = filedialog.asksaveasfile(title = "Save File", filetypes = [("JPR files", "*.jpr")], defaultextension = '.jpr')
@@ -113,11 +114,27 @@ def save(e = None):
     else: 
         text = txtInput.get("1.0", "end")
         txtInput.delete("1.0", "end")
-        for item in paint_words(text):
+        for item in paint_words(text[0:len(text)-1]):
             txtInput.insert(INSERT, item[1], item[0])
 
         with open(fileInput.name, "w") as fileSave: 
             fileSave.write(txtInput.get(1.0, END))
+
+
+
+###---------Save function---------###
+def paint_writing(*args):
+
+    index = txtInput.index(INSERT)
+    text = txtInput.get("1.0", "end")
+    txtInput.delete("1.0", "end")
+
+    for item in paint_words(text[0:len(text)-1]):
+        txtInput.insert(INSERT, item[1], item[0])
+
+    txtInput.mark_set(INSERT, index)
+    txtInput.see(INSERT)
+
 
 
 ##Imports for Interpreter
@@ -142,7 +159,7 @@ def analize(e = None):
 
     text = txtInput.get("1.0", "end")
     txtInput.delete("1.0", "end")
-    for item in paint_words(text):
+    for item in paint_words(text[0:len(text)-1]):
         txtInput.insert(INSERT, item[1], item[0])
 
     instructions = parser(txtInput.get('1.0', 'end'))
@@ -334,6 +351,7 @@ def report_error(e = None):
 
 
 def paint_words(text):
+    text += ' '
     list = []
     value = ''
     c = ''
@@ -720,7 +738,7 @@ myFrame2.pack(fill = "both", expand = "yes")
 myFrame2.config(bg = "#090B10", width = "920", height = "550")
 
 ##-------Label for Title------##
-lblTitle = Label(myFrame2, text = "ML WEB EDITOR", fg = "white", bg = "#090B10")
+lblTitle = Label(myFrame2, text = "JPR EDITOR", fg = "white", bg = "#090B10")
 lblTitle.config(font = ("Consolas", 28))
 lblTitle.grid(row = 0, columnspan=6)
 #lblTitle.pack(anchor = CENTER)
@@ -778,6 +796,7 @@ txtInput.grid(row = 2, column = 1, sticky="ns", pady = (24, 0), padx= 0)
 txtInput.bind("<<Change>>", lines)
 txtInput.bind("<Configure>", lines)
 txtInput.bind("<Motion>", lines)
+txtInput.bind("<KeyRelease>", paint_writing)
 txtInput.bind("<Button>", positionPush)
 txtInput.bind("<KeyPress>", position)
 

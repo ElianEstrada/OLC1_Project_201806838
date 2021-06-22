@@ -20,4 +20,4 @@ class Error:
         return self.__column
 
     def __str__(self):
-        return f"--->{self.__type} - {self.__description} in [{self.__row}, {self.__column}]"
+        return f"---> {self.__type} - {self.__description} in [{self.__row}, {self.__column}]"

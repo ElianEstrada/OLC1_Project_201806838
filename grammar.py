@@ -321,12 +321,64 @@ def p_function_whitout_params(t):
     t[0] = Function(t[2], [], t[6], t.lineno(1), find_column(input, t.slice[1]))
 
 
+def p_function_whit_params(t):
+    'functions : res_func tk_id tk_par_o list_params tk_par_c tk_key_o instructions tk_key_c'
+
+    t[0] = Function(t[2], t[4], t[7], t.lineno(1), find_column(input, t.slice[1]))
+
+
+###---------Production list of params in functions---------###
+
+def p_list_params_functions(t):
+
+    'list_params : list_params tk_comma params'
+
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_list_params_params_funcion(t): 
+    'list_params : params'
+
+    t[0] = [t[1]]
+
+def p_params_of_function(t):
+    'params : type tk_id'
+
+    t[0] = {'type': t[1], 'name': t[2]}
+
+
+
 ###---------Production call_function---------###
 
 def p_call_function_whitout_params(t):
     'call_function : tk_id tk_par_o tk_par_c'
 
     t[0] = Call(t[1], [], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_call_function_whit_params(t):
+    'call_function : tk_id tk_par_o list_params_call tk_par_c'
+
+    t[0] = Call(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+
+###---------Production list_params_call---------###
+
+def p_list_params_call(t):
+    'list_params_call : list_params_call tk_comma params_call'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_list_params_call_param(t):
+    'list_params_call : params_call'
+
+    t[0] = [t[1]]
+
+def p_params_call(t):
+    'params_call : expression'
+
+    t[0] = t[1]
+
 
 ###---------Production print---------###
 

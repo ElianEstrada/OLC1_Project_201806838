@@ -805,7 +805,7 @@ txtInput.grid(row = 2, column = 1, sticky="ns", pady = (24, 0), padx= 0)
 txtInput.bind("<<Change>>", lines)
 txtInput.bind("<Configure>", lines)
 txtInput.bind("<Motion>", lines)
-txtInput.bind("<KeyRelease>", paint_writing)
+#txtInput.bind("<KeyRelease>", paint_writing)
 txtInput.bind("<Button>", positionPush)
 txtInput.bind("<KeyPress>", position)
 

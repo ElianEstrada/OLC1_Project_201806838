@@ -1,5 +1,6 @@
 from src.Abstract.Instruction import Instruction
 from src.Instructions.Break import Break
+from src.Instructions.Return import Return
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.SymbolTable.Errors import Error
 from src.SymbolTable.Type import type
@@ -36,6 +37,9 @@ class While(Instruction):
 
                         if isinstance(instruction, Break):
                             return None
+
+                        if isinstance(instruction, Return):
+                            return instruction
                 else: 
                     break
             else: 

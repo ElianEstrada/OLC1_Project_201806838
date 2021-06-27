@@ -1,5 +1,6 @@
 from src.Expression.Relational import Relational
 from src.Instructions.Break import Break
+from src.Instructions.Return import Return
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.SymbolTable.Errors import Error
@@ -64,8 +65,12 @@ class Switch(Instruction):
                     return result
                 
                 if result == "true":
-                    if self.execute_instructions(tree, table, item.get_instructions(), True) == None and not self.__flag:
+                    result_interpret = self.execute_instructions(tree, table, item.get_instructions(), True)
+                    if result_interpret == None and not self.__flag:
                             return None
+                    elif isinstance(result_interpret, Return):
+                        return result_interpret
+
                 elif self.__flag:
                         self.__flag = False
 
@@ -91,6 +96,9 @@ class Switch(Instruction):
             
             if isinstance(instruction, Break):
                 return None
+
+            if isinstance(instruction, Return):
+                return instruction
 
         if flag:
             self.__flag = True

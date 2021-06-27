@@ -1,3 +1,4 @@
+from src.Instructions.Continue import Coninue
 from src.Instructions.Return import Return
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Errors import Error
@@ -30,6 +31,11 @@ class Function(Instruction):
 
             if isinstance(value, Break):
                 error = Error("Semantic", "Instruction Break out of loop", instruction.row, instruction.column)
+                tree.get_errors().append(error)
+                tree.get_update(error)
+            
+            if isinstance(value, Coninue):
+                error = Error("Semantic", "Instruction Continue out of loop", instruction.row, instruction.column)
                 tree.get_errors().append(error)
                 tree.get_update(error)
 

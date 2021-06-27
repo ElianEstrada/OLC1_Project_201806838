@@ -1,7 +1,7 @@
 from src.Abstract.Instruction import Instruction
 
 
-class Coninue(Instruction): 
+class Continue(Instruction): 
 
     def __init__(self, row, column):
         self.row = row

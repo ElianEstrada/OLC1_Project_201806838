@@ -226,6 +226,7 @@ from src.Instructions.Case import Case
 from src.Instructions.While import While
 from src.Instructions.For import For
 from src.Instructions.Break import Break
+from src.Instructions.Continue import Continue
 from src.Instructions.Function import Function
 from src.Instructions.Call import Call
 from src.Instructions.Return import Return
@@ -495,6 +496,11 @@ def p_transfer_break(t):
     'transfer : res_break'
     t[0] = Break(t.lineno(1), find_column(input, t.slice[1]))
 
+
+def p_transfer_continue(t):
+    'transfer : res_continue'
+
+    t[0] = Continue(t.lineno(1), find_column(input, t.slice[1]))
 
 def p_transfer_return(t):
     'transfer : res_return expression'

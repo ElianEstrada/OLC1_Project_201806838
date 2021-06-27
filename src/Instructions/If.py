@@ -1,3 +1,5 @@
+from src.Instructions.Break import Break
+from src.Instructions.Continue import Continue
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.SymbolTable.Errors import Error
 from src.Instructions.Return import Return
@@ -33,6 +35,12 @@ class If(Instruction):
                         tree.get_errors().append(instruction)
                         tree.update_console(instruction)
 
+                    if isinstance(instruction, Continue):
+                        return instruction
+
+                    if isinstance(instruction, Break):
+                        return instruction
+
                     if isinstance(instruction, Return):
                         return instruction
             else:
@@ -44,7 +52,13 @@ class If(Instruction):
 
                         if isinstance(instruction_else, Error):
                             tree.get_errors().append(instruction_else)
-                        tree.update_console(instruction_else)
+                            tree.update_console(instruction_else)
+
+                        if isinstance(instruction_else, Continue):
+                            return instruction_else  
+
+                        if isinstance(instruction_else, Break):
+                            return instruction_else
 
                         if isinstance(instruction_else, Return):
                             return instruction_else

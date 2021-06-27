@@ -1,3 +1,4 @@
+from src.Instructions.Continue import Continue
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.Abstract.Instruction import Instruction
 from src.Instructions.Break import Break
@@ -60,6 +61,9 @@ class For(Instruction):
                                     tree.get_errors().append(instruction)
                                     tree.update_console(instruction)
                                 
+                                if isinstance(instruction, Continue):
+                                    break
+
                                 if isinstance(instruction, Break):
                                     return None
                                 

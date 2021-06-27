@@ -1,5 +1,6 @@
 from src.Expression.Relational import Relational
 from src.Instructions.Break import Break
+from src.Instructions.Continue import Continue
 from src.Instructions.Return import Return
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.SymbolTable import SymbolTable
@@ -91,11 +92,14 @@ class Switch(Instruction):
             instruction = item.interpret(tree, new_table)
 
             if isinstance(instruction, Error):
-                tree.get_errors().append(instruction)
+                tree.get_errors().append(instruction) 
                 tree.update_console(instruction)
             
             if isinstance(instruction, Break):
                 return None
+
+            if isinstance(instruction, Continue):
+                return instruction
 
             if isinstance(instruction, Return):
                 return instruction

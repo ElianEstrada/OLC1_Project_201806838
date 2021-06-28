@@ -10,10 +10,10 @@ from src.SymbolTable.SymbolTable import SymbolTable
 class Function(Instruction):
 
     def __init__(self, name, params, instructions, row, column):
-        self.__name = name.lower()
-        self.__params = params
-        self.__instructions = instructions
-        self.__type = type.NULL
+        self.name = name.lower()
+        self.params = params
+        self.instructions = instructions
+        self.type = type.NULL
         self.row = row
         self.column = column
 
@@ -48,13 +48,13 @@ class Function(Instruction):
 
 
     def get_type(self):
-        return self.__type
+        return self.type
 
     def get_name(self):
-        return self.__name
+        return self.name
 
     def get_params(self):
-        return self.__params
+        return self.params
             
 
 

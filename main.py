@@ -22,13 +22,6 @@ reserved_words = [
     'for',
     'continue',
     'return',
-    'read',
-    'tolower',
-    'toupper',
-    'length',
-    'truncate',
-    'round',
-    'typeof',
     'main',
     'true',
     'false',
@@ -151,6 +144,20 @@ from src.Instructions.Function import Function
 from src.Instructions.Return import Return
 
 
+##Imports for Interpret native_functions
+from src.SymbolTable.Type import type
+from src.Natives.To_Lower import To_Lower
+
+
+###---------Native function---------###
+def create_native_functions(ast):
+    name = 'tolower'
+    params = [{'type': type.STRING, 'name': 'to_lower##param1'}]
+
+    to_lower = To_Lower(name, params, [], -1, -1)
+    ast.add_function(to_lower)
+
+
 ###---------Analize function---------###
 def analize(e = None): 
     global fileInput
@@ -171,9 +178,13 @@ def analize(e = None):
         value = messagebox.showerror("Instructions", "No Instructions for interpret")
         return
     #print(instructions)
+
+    
     ast = Tree(instructions)
     ts_global = SymbolTable()
     ast.set_global_table(ts_global)
+
+    create_native_functions(ast)
 
     for error in get_errors():
         ast.get_errors().append(error)

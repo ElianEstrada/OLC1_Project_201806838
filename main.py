@@ -22,13 +22,6 @@ reserved_words = [
     'for',
     'continue',
     'return',
-    'read',
-    'tolower',
-    'toupper',
-    'length',
-    'truncate',
-    'round',
-    'typeof',
     'main',
     'true',
     'false',
@@ -39,7 +32,8 @@ reserved_words = [
     'string',
     'char', 
     'boolean',
-    'func'
+    'func',
+    'read'
 ]
 
 
@@ -151,6 +145,48 @@ from src.Instructions.Function import Function
 from src.Instructions.Return import Return
 
 
+##Imports for Interpret native_functions
+from src.SymbolTable.Type import type
+from src.Natives.Length import Length
+from src.Natives.Round import Round
+from src.Natives.To_Lower import To_Lower
+from src.Natives.To_Upper import To_Upper
+from src.Natives.Truncate import Truncate
+from src.Natives.Type_Of import Type_Of
+
+
+###---------Native function---------###
+def create_native_functions(ast):
+
+    ##Function toLower
+    name = 'tolower'
+    params = [{'type': type.STRING, 'name': 'to_lower##param1'}]
+
+    to_lower = To_Lower(name, params, [], -1, -1)
+    ast.add_function(to_lower)
+
+    ##Funciton toUpper
+    name = 'toupper'
+    params = [{'type': type.STRING, 'name': 'to_upper##param1'}]
+    to_upper = To_Upper(name, params, [], -1, -1)
+    ast.add_function(to_upper)
+
+    ##Function Lenght
+    length = Length('length', [{'type': type.NULL, 'name': 'length##param1'}], [], -1, -1)
+    ast.add_function(length)
+
+    ##Function Truncate
+    truncate = Truncate('truncate', [{'type': type.NULL, 'name': 'truncate##param1'}], [], -1, -1)
+    ast.add_function(truncate)
+
+    ##Function Round
+    round = Round('round', [{'type': type.NULL, 'name': 'round##param1'}], [], -1, -1)
+    ast.add_function(round)
+
+    ##Function type_of
+    type_of = Type_Of('typeof', [{'type': type.NULL, 'name': 'type_of##param1'}], [], -1, -1)
+    ast.add_function(type_of)
+
 ###---------Analize function---------###
 def analize(e = None): 
     global fileInput
@@ -159,6 +195,7 @@ def analize(e = None):
     global errors
 
     errors = []
+    txtOutput.config(state='normal')
     txtOutput.delete("1.0", "end")
 
     text = txtInput.get("1.0", "end")
@@ -171,9 +208,14 @@ def analize(e = None):
         value = messagebox.showerror("Instructions", "No Instructions for interpret")
         return
     #print(instructions)
+
+    
     ast = Tree(instructions)
     ts_global = SymbolTable()
     ast.set_global_table(ts_global)
+    ast.set_output_text(txtOutput)
+
+    create_native_functions(ast)
 
     for error in get_errors():
         ast.get_errors().append(error)
@@ -236,6 +278,7 @@ def analize(e = None):
             ast.update_console(error)
  
     txtOutput.insert('1.0', ast.get_console())
+    txtOutput.config(state='disable')
     errors = ast.get_errors()
     lbl_error_count.config(text = len(errors))
     print(ast.get_console())
@@ -845,7 +888,8 @@ txtOutput = Text(myFrame2, wrap = 'none', width = 60, height = 30, font = ("Cons
 txtOutput.focus()
 txtOutput.config(bg="#090b10", fg="white", insertbackground="white", tabs=('0.8c'), highlightbackground="#090B10")
 txtOutput.grid(row = 2, column = 4, sticky="ns", pady = (24, 0))
-txtOutput.bind("<Key>", lambda a: "break")
+txtOutput.config(state="disable")
+#txtOutput.bind("<Key>", lambda a: "break")
 
 
 ##-------Scroll for Output--------##

@@ -30,6 +30,17 @@ class Call(Instruction):
                 if isinstance(value_expression, Error):
                     return value_expression
 
+
+                if str(ob_function.get_params()[count]['name']).lower() in ('length##param1', 'round##param1'):
+                    
+                    symbol = Symbol(str(ob_function.get_params()[count]['name']).lower(), expression.get_type(), self.row, self.column, value_expression)
+                    table_result = new_table.set_table(symbol)
+
+                    if isinstance(table_result, Error):
+                        return table_result
+
+                    break
+
                 if ob_function.get_params()[count]['type'] == expression.get_type():
 
                     symbol = Symbol(str(ob_function.get_params()[count]['name']).lower(), expression.get_type(), self.row, self.column, value_expression)

@@ -146,6 +146,7 @@ from src.Instructions.Return import Return
 
 ##Imports for Interpret native_functions
 from src.SymbolTable.Type import type
+from src.Natives.Length import Length
 from src.Natives.To_Lower import To_Lower
 from src.Natives.To_Upper import To_Upper
 
@@ -165,6 +166,11 @@ def create_native_functions(ast):
     params = [{'type': type.STRING, 'name': 'to_upper##param1'}]
     to_upper = To_Upper(name, params, [], -1, -1)
     ast.add_function(to_upper)
+
+    ##Function Lenght
+    length = Length('length', [{'type': type.NULL, 'name': 'length##param1'}], [], -1, -1)
+    ast.add_function(length)
+
 
 
 ###---------Analize function---------###

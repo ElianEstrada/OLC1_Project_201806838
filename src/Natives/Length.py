@@ -21,7 +21,7 @@ class Length(Function):
             return Error("Semantic", "Identifier not found in the current context")
 
         if symbol.get_type() not in (type.STRING, type.ARRAY):
-            return Error("Semantic", f"The type: {symbol.get_type().name} not valid like param for toLower function", self.row, self.column)
+            return Error("Semantic", f"The type: {symbol.get_type().name} not valid like param for Length function", self.row, self.column)
 
         self.type = type.INTEGGER
         return len(symbol.get_value())

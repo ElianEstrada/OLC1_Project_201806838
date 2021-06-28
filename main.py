@@ -149,6 +149,7 @@ from src.SymbolTable.Type import type
 from src.Natives.Length import Length
 from src.Natives.To_Lower import To_Lower
 from src.Natives.To_Upper import To_Upper
+from src.Natives.Truncate import Truncate
 
 
 ###---------Native function---------###
@@ -171,6 +172,10 @@ def create_native_functions(ast):
     length = Length('length', [{'type': type.NULL, 'name': 'length##param1'}], [], -1, -1)
     ast.add_function(length)
 
+
+    ##Function Truncate
+    truncate = Truncate('truncate', [{'type': type.NULL, 'name': 'truncate##param1'}], [], -1, -1)
+    ast.add_function(truncate)
 
 
 ###---------Analize function---------###

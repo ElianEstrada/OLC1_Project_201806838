@@ -151,6 +151,7 @@ from src.Natives.Round import Round
 from src.Natives.To_Lower import To_Lower
 from src.Natives.To_Upper import To_Upper
 from src.Natives.Truncate import Truncate
+from src.Natives.Type_Of import Type_Of
 
 
 ###---------Native function---------###
@@ -180,6 +181,10 @@ def create_native_functions(ast):
     ##Function Round
     round = Round('round', [{'type': type.NULL, 'name': 'round##param1'}], [], -1, -1)
     ast.add_function(round)
+
+    ##Function type_of
+    type_of = Type_Of('typeof', [{'type': type.NULL, 'name': 'type_of##param1'}], [], -1, -1)
+    ast.add_function(type_of)
 
 ###---------Analize function---------###
 def analize(e = None): 

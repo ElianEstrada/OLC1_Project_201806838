@@ -31,7 +31,7 @@ class Call(Instruction):
                     return value_expression
 
 
-                if str(ob_function.get_params()[count]['name']).lower() in ('length##param1', 'round##param1', 'truncate##param1'):
+                if str(ob_function.get_params()[count]['name']).lower() in ('length##param1', 'round##param1', 'truncate##param1', 'type_of##param1'):
                     
                     symbol = Symbol(str(ob_function.get_params()[count]['name']).lower(), expression.get_type(), self.row, self.column, value_expression)
                     table_result = new_table.set_table(symbol)

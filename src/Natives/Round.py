@@ -26,7 +26,9 @@ class Round(Function):
     
         self.type = type.INTEGGER
 
-        if str(symbol.get_value()).split('.')[1][0] >= '5':
+
+
+        if str(symbol.get_value()).count('.') > 0 and str(symbol.get_value()).split('.')[1][0] >= '5':
             return math.ceil(symbol.get_value())
         
         return round(symbol.get_value())

@@ -146,6 +146,7 @@ from src.Instructions.Assignment import Assignment
 from src.Instructions.Declaration import Declaration
 from src.SymbolTable.Errors import Error
 from src.Instructions.Break import Break
+from src.Instructions.Continue import Continue
 from src.Instructions.Function import Function
 from src.Instructions.Return import Return
 
@@ -216,6 +217,10 @@ def analize(e = None):
                     ast.update_console(value)
                 if isinstance(instruction, Break):
                     error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
+                    ast.get_errors().append(error)
+                    ast.update_console(error)
+                if isinstance(instruction, Continue): 
+                    error = Error("Semantic", "The instruction Continue is loop instruction")
                     ast.get_errors().append(error)
                     ast.update_console(error)
                 if isinstance(instruction, Return):

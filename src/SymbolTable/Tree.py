@@ -6,6 +6,7 @@ class Tree:
         self.__errors = []
         self.__console = ""
         self.__global_table = None
+        self.__output_text = None
 
 
     def set_instructions(self, instructions):
@@ -46,5 +47,11 @@ class Tree:
     
     def get_global_table(self):
         return self.__global_table
+
+    def set_output_text(self, output):
+        self.__output_text = output
+
+    def get_output_text(self):
+        return self.__output_text
 
     

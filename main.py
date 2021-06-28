@@ -32,7 +32,8 @@ reserved_words = [
     'string',
     'char', 
     'boolean',
-    'func'
+    'func',
+    'read'
 ]
 
 
@@ -194,6 +195,7 @@ def analize(e = None):
     global errors
 
     errors = []
+    txtOutput.config(state='normal')
     txtOutput.delete("1.0", "end")
 
     text = txtInput.get("1.0", "end")
@@ -211,6 +213,7 @@ def analize(e = None):
     ast = Tree(instructions)
     ts_global = SymbolTable()
     ast.set_global_table(ts_global)
+    ast.set_output_text(txtOutput)
 
     create_native_functions(ast)
 
@@ -275,6 +278,7 @@ def analize(e = None):
             ast.update_console(error)
  
     txtOutput.insert('1.0', ast.get_console())
+    txtOutput.config(state='disable')
     errors = ast.get_errors()
     lbl_error_count.config(text = len(errors))
     print(ast.get_console())
@@ -884,7 +888,8 @@ txtOutput = Text(myFrame2, wrap = 'none', width = 60, height = 30, font = ("Cons
 txtOutput.focus()
 txtOutput.config(bg="#090b10", fg="white", insertbackground="white", tabs=('0.8c'), highlightbackground="#090B10")
 txtOutput.grid(row = 2, column = 4, sticky="ns", pady = (24, 0))
-txtOutput.bind("<Key>", lambda a: "break")
+txtOutput.config(state="disable")
+#txtOutput.bind("<Key>", lambda a: "break")
 
 
 ##-------Scroll for Output--------##

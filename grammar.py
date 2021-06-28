@@ -22,7 +22,8 @@ reserved_words = {
     "char": "res_char",
     "string": "res_string",
     "boolean": "res_boolean",
-    "func": "res_func"
+    "func": "res_func",
+    "read": "res_read"
 }
 
 tokens = [
@@ -222,6 +223,7 @@ from src.Instructions.Break import Break
 from src.Instructions.Continue import Continue
 from src.Instructions.Function import Function
 from src.Instructions.Call import Call
+from src.Expression.Read import Read
 from src.Instructions.Return import Return
 from src.SymbolTable.Errors import Error
 
@@ -611,6 +613,10 @@ def p_expression_call_function(t):
     'expression : call_function'
     t[0] = t[1]
 
+def p_expression_read(t):
+    'expression : res_read tk_par_o tk_par_c'
+
+    t[0] = Read(t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expression_primitive_int(t):
     '''

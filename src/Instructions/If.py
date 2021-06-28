@@ -1,5 +1,8 @@
+from src.Instructions.Break import Break
+from src.Instructions.Continue import Continue
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.SymbolTable.Errors import Error
+from src.Instructions.Return import Return
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Type import type
 
@@ -29,6 +32,16 @@ class If(Instruction):
                     instruction = item.interpret(tree, new_table)
 
                     if isinstance(instruction, Error):
+                        tree.get_errors().append(instruction)
+                        tree.update_console(instruction)
+
+                    if isinstance(instruction, Continue):
+                        return instruction
+
+                    if isinstance(instruction, Break):
+                        return instruction
+
+                    if isinstance(instruction, Return):
                         return instruction
             else:
                 if self.__else_instructions != None:
@@ -38,12 +51,26 @@ class If(Instruction):
                         instruction_else = item.interpret(tree, new_table)
 
                         if isinstance(instruction_else, Error):
+                            tree.get_errors().append(instruction_else)
+                            tree.update_console(instruction_else)
+
+                        if isinstance(instruction_else, Continue):
+                            return instruction_else  
+
+                        if isinstance(instruction_else, Break):
                             return instruction_else
+
+                        if isinstance(instruction_else, Return):
+                            return instruction_else
+
                 elif self.__else_if != None:
 
                     result = self.__else_if.interpret(tree, table)
 
                     if isinstance(result, Error):
+                        return result
+
+                    if isinstance(result, Return):
                         return result
 
         else: 

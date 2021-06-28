@@ -82,7 +82,9 @@ class Casting(Instruction):
                         return value
 
                     elif self.__exp.get_type() == type.INTEGGER:
-                        return chr(value)
+                        if value >= 0 and value <=255:
+                            return chr(value)
+                        return Error("Semantic", f"The value: {value} out of range of type CHAR, this has range of 0-255", self.row, self.column)
 
                     else:
                         return Error("Semantic", f"{self.__exp.get_type().name} type cannot cast to {self.__type.name} type", self.row, self.column)

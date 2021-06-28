@@ -1,5 +1,4 @@
 from src.Abstract.Instruction import Instruction
-from src.SymbolTable.Errors import Error
 
 
 class Break(Instruction):

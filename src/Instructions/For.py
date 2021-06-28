@@ -1,5 +1,8 @@
+from src.Instructions.Continue import Continue
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.Abstract.Instruction import Instruction
+from src.Instructions.Break import Break
+from src.Instructions.Return import Return
 from src.Instructions.Declaration import Declaration
 from src.SymbolTable.Type import type
 from src.SymbolTable.Errors import Error
@@ -57,6 +60,15 @@ class For(Instruction):
                                 if isinstance(instruction, Error):
                                     tree.get_errors().append(instruction)
                                     tree.update_console(instruction)
+                                
+                                if isinstance(instruction, Continue):
+                                    break
+
+                                if isinstance(instruction, Break):
+                                    return None
+                                
+                                if isinstance(instruction, Return):
+                                    return instruction
 
                         advance = self.__advance.interpret(tree, new_table)
                         

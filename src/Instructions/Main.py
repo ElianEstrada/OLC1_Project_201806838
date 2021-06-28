@@ -1,3 +1,4 @@
+from src.Instructions.Continue import Continue
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Errors import Error
 from src.Instructions.Break import Break
@@ -24,5 +25,10 @@ class Main(Instruction):
             
             if isinstance(instruction, Break):
                 error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
+                tree.get_errors().append(error)
+                tree.update_console(error)
+
+            if isinstance(instruction, Continue):
+                error = Error("Semantic", "The Instruction Continue is loop instruction", instruction.row, instruction.column)
                 tree.get_errors().append(error)
                 tree.update_console(error)

@@ -28,7 +28,8 @@ reserved_words = {
     "double": "res_double",
     "char": "res_char",
     "string": "res_string",
-    "boolean": "res_boolean"
+    "boolean": "res_boolean",
+    "func": "res_func"
 }
 
 tokens = [
@@ -225,6 +226,10 @@ from src.Instructions.Case import Case
 from src.Instructions.While import While
 from src.Instructions.For import For
 from src.Instructions.Break import Break
+from src.Instructions.Continue import Continue
+from src.Instructions.Function import Function
+from src.Instructions.Call import Call
+from src.Instructions.Return import Return
 from src.SymbolTable.Errors import Error
 
 
@@ -260,7 +265,8 @@ def p_instruction(t):
                    | conditional
                    | loops
                    | transfer ptcommaP
-                   | functions'''
+                   | functions
+                   | call_function ptcommaP'''
     t[0] = t[1]
 
 def p_instruction_error(t):
@@ -306,6 +312,73 @@ def p_functions(t):
 def p_function_main(t):
     'function_main : res_main tk_par_o tk_par_c tk_key_o instructions tk_key_c'
     t[0] = Main(t[5], t.lineno(1), find_column(input, t.slice[1]))
+
+
+###---------Production function_without_params---------###
+
+def p_function_whitout_params(t):
+    'functions : res_func tk_id tk_par_o tk_par_c tk_key_o instructions tk_key_c'
+
+    t[0] = Function(t[2], [], t[6], t.lineno(1), find_column(input, t.slice[1]))
+
+
+def p_function_whit_params(t):
+    'functions : res_func tk_id tk_par_o list_params tk_par_c tk_key_o instructions tk_key_c'
+
+    t[0] = Function(t[2], t[4], t[7], t.lineno(1), find_column(input, t.slice[1]))
+
+
+###---------Production list of params in functions---------###
+
+def p_list_params_functions(t):
+
+    'list_params : list_params tk_comma params'
+
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_list_params_params_funcion(t): 
+    'list_params : params'
+
+    t[0] = [t[1]]
+
+def p_params_of_function(t):
+    'params : type tk_id'
+
+    t[0] = {'type': t[1], 'name': t[2]}
+
+
+
+###---------Production call_function---------###
+
+def p_call_function_whitout_params(t):
+    'call_function : tk_id tk_par_o tk_par_c'
+
+    t[0] = Call(t[1], [], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_call_function_whit_params(t):
+    'call_function : tk_id tk_par_o list_params_call tk_par_c'
+
+    t[0] = Call(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+
+###---------Production list_params_call---------###
+
+def p_list_params_call(t):
+    'list_params_call : list_params_call tk_comma params_call'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_list_params_call_param(t):
+    'list_params_call : params_call'
+
+    t[0] = [t[1]]
+
+def p_params_call(t):
+    'params_call : expression'
+
+    t[0] = t[1]
 
 
 ###---------Production print---------###
@@ -424,6 +497,17 @@ def p_transfer_break(t):
     t[0] = Break(t.lineno(1), find_column(input, t.slice[1]))
 
 
+def p_transfer_continue(t):
+    'transfer : res_continue'
+
+    t[0] = Continue(t.lineno(1), find_column(input, t.slice[1]))
+
+def p_transfer_return(t):
+    'transfer : res_return expression'
+
+    t[0] = Return(t[2], t.lineno(1), find_column(input, t.slice[1]))
+
+
 ###---------Production Type---------###
 
 def p_type(t):
@@ -528,6 +612,12 @@ def p_expression_unary_cast(t):
     'expression : tk_par_o type tk_par_c expression %prec tk_fcast'
 
     t[0] = Casting(t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
+
+
+def p_expression_call_function(t):
+    'expression : call_function'
+    t[0] = t[1]
+
 
 def p_expression_primitive_int(t):
     '''

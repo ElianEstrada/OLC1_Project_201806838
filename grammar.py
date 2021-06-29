@@ -302,6 +302,12 @@ def p_statement_array(t):
     t[0] = Array(t[1], t[2], t[3], t[6], t[7], [], t.lineno(3), find_column(input, t.slice[3]))
 
 
+def p_statement_array_keys(t):
+    'statement_array : type list_brackets tk_id tk_assig values_array'
+
+    t[0] = Array(t[1], t[2], t[3], None, None, t[5], t.lineno(3), find_column(input, t.slice[3]))
+
+
 def p_statement_array_list_brackets(t):
     'list_brackets : list_brackets brackets'
     t[1].append(t[2])
@@ -327,6 +333,28 @@ def p_statement_array_list_expression_expression(t):
 def p_statement_array_expression(t):
     'expression_bra : tk_brackets_o expression tk_brackets_c'
     t[0] = t[2]
+
+
+def p_values_array(t):
+    'values_array : tk_key_o list_values_array tk_key_c'
+
+    t[0] = t[2]
+
+def p_list_values_array(t):
+    'list_values_array : list_values_array tk_comma values'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_list_values_array_value(t):
+    'list_values_array : values'
+
+    t[0] = [t[1]]
+
+def p_value(t):
+    '''values : values_array
+              | expression'''
+
+    t[0] = t[1]
 
 
 ###---------Production Assignment---------###

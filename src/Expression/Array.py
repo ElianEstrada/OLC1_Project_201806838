@@ -61,12 +61,69 @@ class Array(Instruction):
             else:
                 return Error("Semantic", f"The type: {self.__type_assig.name} can not assigned to type: {self.__type_init.name}", self.row, self.column)
 
-            result = table.set_table(symbol)
+        else: 
+            
+            #len_array = self.calc_positions(self.__list_expression) 
 
-            if isinstance(result, Error):
-                return result
+            #list_aux = self.get_list(self.__list_expression, tree, table)
 
-            return None
+            # if isinstance(list_aux, Error):
+            #     return list_aux
+
+            #list_values = []
+
+            #for item in list_aux:
+            #    if self.__type_init == type.INTEGGER:
+            #        primitive = Primitive(type.INTEGGER, int(item), self.row, self.column)
+            #    elif self.__type_init == type.FLOAT:
+            #        primitive = Primitive(type.FLOAT, float(item), self.row, self.column)
+            #    else:
+            #primitive = Primitive(self.__type_init, item, self.row, self.column)
+
+            #    list_values.append(primitive)
+
+            self.__list_value = self.__list_expression
+
+            symbol = Symbol(self.__name, type.ARRAY, self.row, self.column, self)
+
+        result = table.set_table(symbol)
+
+        if isinstance(result, Error):
+            return result
+
+        return None
+
+
+    def get_list(self, list_values, tree, table):
+
+        expressions = ""
+
+        if isinstance(list_values, list):
+
+            for item in list_values:
+
+                result = self.get_list(item, tree, table)
+
+                if isinstance(result, Error):
+                    return result
+
+                expressions += result + ','
+
+        else:
+
+            if list_values.get_type() == self.__type_init:
+
+                value = list_values.interpret(tree, table)
+
+                if isinstance(value, Error):
+                    return value
+
+                return str(value)
+            
+            else: 
+                return Error("Semantic", f"The type: {list_values.get_type().name} can not assigned to the type: {self.__type_init}", self.row, self.column)
+
+        return expressions[:-1]
 
     def get_type(self):
         return self.__type_init
@@ -79,3 +136,6 @@ class Array(Instruction):
 
     def get_list_value(self):
         return self.__list_value
+
+    def set_list_value(self, list_values):
+        self.__list_value = list_values

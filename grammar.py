@@ -203,6 +203,8 @@ precedence = (
 #Abstract
 #from src.Abstract.Instruction import Instruction
 from src.Instructions.Print import Print
+from src.Expression.Array import Array
+from src.Expression.Access_Array import Access_Array
 from src.Expression.Primitive import Primitive
 from src.Expression.Identifier import Identifier
 from src.Expression.Arithmetic import Arithmetic
@@ -255,6 +257,8 @@ def p_instructions_instruction(t):
 def p_instruction(t):
     '''instruction : statement ptcommaP
                    | assignment ptcommaP 
+                   | statement_array ptcommaP
+                   | assignment_array ptcommaP
                    | print ptcommaP
                    | inc_dec ptcommaP
                    | conditional
@@ -289,11 +293,25 @@ def p_statementP(t):
     else:
         t[0] = t[1]
 
+
+###---------Production Statement_Array---------###
+
+def p_statement_array(t):
+    'statement_array : type tk_brackets_o tk_brackets_c tk_id tk_assig res_new type tk_brackets_o expression tk_brackets_c'
+
+    t[0] = Array(t[1], t[4], t[7], t[9], [], t.lineno(2), find_column(input, t.slice[2]))
+
+
 ###---------Production Assignment---------###
 
 def p_assignment(t):
     'assignment : tk_id tk_assig expression'
     t[0] = Assignment(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_assignment_array(t):
+    'assignment_array : tk_id tk_brackets_o expression tk_brackets_c tk_assig expression'
+
+    t[0] = Access_Array(t[1], t[3], t[6], t.lineno(1), find_column(input, t.slice[1]))
 
 
 ###---------Production Functions---------###
@@ -644,6 +662,11 @@ def p_epression_primitive_bool(t):
 def p_expression_primitive_id(t):
     'expression : tk_id'
     t[0] = Identifier(t[1], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expression_primitive_array(t):
+    'expression : tk_id tk_brackets_o expression tk_brackets_c'
+
+    t[0] = Access_Array(t[1], t[3], None, t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expression_primitive_null(t):
     'expression : res_null'

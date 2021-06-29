@@ -6,11 +6,13 @@ from src.SymbolTable.Symbol import Symbol
 
 class Array(Instruction):
 
-    def __init__(self, type_init, name, type_assig, expression, list_expression, row, column):
+    def __init__(self, type_init, len_init, name, type_assig, expression, list_expression, row, column):
         self.__type_init = type_init
         self.__name = name.lower()
         self.__type_assig = type_assig
+        self.__len_init = len(len_init)
         self.__expression = expression
+        self.__list_value = []
         self.__list_expression = list_expression
         self.__type = type.NULL
         self.row = row
@@ -23,26 +25,38 @@ class Array(Instruction):
 
         if None not in (self.__type_assig, self.__expression):
             if self.__type_assig == self.__type_init:
-                value = self.__expression.interpret(tree, table)
 
-                if isinstance(value, Error):
-                    return value
-                
-                if self.__expression.get_type() != type.INTEGGER:
-                    return Error("Semantic", f"The type: {self.__expression.get_type().name} for expression is invalid, must be of type INTEGGER", self.row, self.count)
+                if self.__len_init == len(self.__expression):
+                    len_array = 1
 
-                list_value = []        
-                count = 0
+                    for expression in self.__expression:
 
-                while count < value:
-                    primitive = Primitive(type.NULL, 'null', self.row, self.column)
+                        value = expression.interpret(tree, table)
 
-                    list_value.append(primitive)
+                        if isinstance(value, Error):
+                            return value
+                        
+                        if expression.get_type() != type.INTEGGER:
+                            return Error("Semantic", f"The type: {expression.get_type().name} for expression is invalid, must be of type INTEGGER", self.row, self.count)
 
-                    count += 1
+                        len_array *= value
 
-                symbol = Symbol(self.__name, type.ARRAY, self.row, self.column, list_value, self.__type_assig)
+                    list_value = []        
+                    count = 0
 
+                    while count < len_array:
+                        primitive = Primitive(type.NULL, 'null', self.row, self.column)
+
+                        list_value.append(primitive)
+
+                        count += 1
+
+                    self.__list_value = list_value
+
+                    symbol = Symbol(self.__name, type.ARRAY, self.row, self.column, self)
+
+                else: 
+                    return Error("Semantic", f"The number of dimensions is wrong: {self.__len_init} is not equal of {len(self.__expression)}", self.row, self.column)    
 
             else:
                 return Error("Semantic", f"The type: {self.__type_assig.name} can not assigned to type: {self.__type_init.name}", self.row, self.column)
@@ -56,3 +70,12 @@ class Array(Instruction):
 
     def get_type(self):
         return self.__type_init
+
+    def get_expression(self):
+        return self.__expression
+
+    def get_list_expression(self):
+        return self.__list_expression
+
+    def get_list_value(self):
+        return self.__list_value

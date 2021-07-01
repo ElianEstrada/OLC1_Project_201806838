@@ -203,6 +203,8 @@ precedence = (
 #Abstract
 #from src.Abstract.Instruction import Instruction
 from src.Instructions.Print import Print
+from src.Expression.Array import Array
+from src.Expression.Access_Array import Access_Array
 from src.Expression.Primitive import Primitive
 from src.Expression.Identifier import Identifier
 from src.Expression.Arithmetic import Arithmetic
@@ -255,6 +257,8 @@ def p_instructions_instruction(t):
 def p_instruction(t):
     '''instruction : statement ptcommaP
                    | assignment ptcommaP 
+                   | statement_array ptcommaP
+                   | assignment_array ptcommaP
                    | print ptcommaP
                    | inc_dec ptcommaP
                    | conditional
@@ -289,11 +293,90 @@ def p_statementP(t):
     else:
         t[0] = t[1]
 
+
+###---------Production Statement_Array---------###
+
+def p_statement_array(t):
+    'statement_array : type list_brackets tk_id tk_assig res_new type list_expression'
+
+    t[0] = Array(t[1], t[2], t[3], t[6], t[7], [], t.lineno(3), find_column(input, t.slice[3]))
+
+
+def p_statement_array_keys(t):
+    'statement_array : type list_brackets tk_id tk_assig values_array'
+
+    t[0] = Array(t[1], t[2], t[3], None, None, t[5], t.lineno(3), find_column(input, t.slice[3]))
+
+def p_statement_array_array(t):
+    'statement_array : type list_brackets tk_id tk_assig tk_id'
+
+    t[0] = Array(t[1], t[2], t[3], None, None, [], t.lineno(3), find_column(input, t.slice[3]), Identifier(t[5], t.lineno(3), find_column(input, t.slice[3])))
+
+
+def p_statement_array_list_brackets(t):
+    'list_brackets : list_brackets brackets'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_statement_array_list_brackets_brackets(t):
+    'list_brackets : brackets'
+    t[0] = [t[1]]
+
+def p_statement_array_brackets(t):
+    'brackets : tk_brackets_o tk_brackets_c'
+    t[0] = t[1] + t[2]
+
+def p_statement_array_list_expression(t):
+    'list_expression : list_expression expression_bra'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_statement_array_list_expression_expression(t):
+    'list_expression : expression_bra'
+    t[0] = [t[1]]
+
+def p_statement_array_expression(t):
+    'expression_bra : tk_brackets_o expression tk_brackets_c'
+    t[0] = t[2]
+
+
+def p_values_array(t):
+    'values_array : tk_key_o list_values_array tk_key_c'
+
+    t[0] = t[2]
+
+def p_list_values_array(t):
+    'list_values_array : list_values_array tk_comma values'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_list_values_array_value(t):
+    'list_values_array : values'
+
+    t[0] = [t[1]]
+
+def p_value(t):
+    '''values : values_array
+              | expression'''
+
+    t[0] = t[1]
+
+
 ###---------Production Assignment---------###
 
 def p_assignment(t):
     'assignment : tk_id tk_assig expression'
     t[0] = Assignment(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_assignment_array(t):
+    'assignment_array : tk_id list_expression tk_assig expression'
+
+    t[0] = Access_Array(t[1], t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
+
+# def p_assignment_array_array(t):
+#     'assignment_array : tk_id tk_assig tk_id'
+
+#     t[0] = Access_Array(t[1], [], t[3], t.lineno(1), find_column(input, t.slice[1]))
 
 
 ###---------Production Functions---------###
@@ -322,7 +405,7 @@ def p_function_whit_params(t):
 
     t[0] = Function(t[2], t[4], t[7], t.lineno(1), find_column(input, t.slice[1]))
 
-
+ 
 ###---------Production list of params in functions---------###
 
 def p_list_params_functions(t):
@@ -342,6 +425,11 @@ def p_params_of_function(t):
     'params : type tk_id'
 
     t[0] = {'type': t[1], 'name': t[2]}
+
+def p_params_of_functions_arrya(t):
+    'params : type list_brackets tk_id'
+
+    t[0] = {'type': type.ARRAY, 'name': t[3], 'len': t[2], 'sub_type': t[1]}
 
 
 
@@ -644,6 +732,11 @@ def p_epression_primitive_bool(t):
 def p_expression_primitive_id(t):
     'expression : tk_id'
     t[0] = Identifier(t[1], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expression_primitive_array(t):
+    'expression : tk_id list_expression'
+
+    t[0] = Access_Array(t[1], t[2], None, t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expression_primitive_null(t):
     'expression : res_null'

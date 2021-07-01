@@ -23,6 +23,16 @@ ptcommaP ::= tk_ptcomma
             | 
 
 
+
+value ::= { list_expr }
+
+list_expr ::= list_expr , expr
+            | expr
+
+expr :: = value
+         | num   
+
+
 Expression ::= Expression + Expression
               |Expression - Expression
               |tk_entero

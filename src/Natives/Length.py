@@ -24,8 +24,21 @@ class Length(Function):
             return Error("Semantic", f"The type: {symbol.get_type().name} not valid like param for Length function", self.row, self.column)
 
         self.type = type.INTEGGER
-        return len(symbol.get_value())
+
+        if symbol.get_type() == type.STRING:
+
+            return len(symbol.get_value())
+        else: 
+            return self.calc_positions(symbol.get_value().get_list_value())
 
     
+    def calc_positions(self, list_values):
+
+        if isinstance(list_values, list):
+            return len(list_values) * self.calc_positions(list_values[0])
+
+        return 1
+
+
     def get_type(self):
         return self.type

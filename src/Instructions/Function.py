@@ -22,7 +22,7 @@ class Function(Instruction):
 
         new_table = SymbolTable(table)
 
-        for instruction in self.__instructions:
+        for instruction in self.instructions:
             value = instruction.interpret(tree, new_table)
 
             if isinstance(value, Error):
@@ -40,7 +40,7 @@ class Function(Instruction):
                 tree.get_update(error)
 
             if isinstance(value, Return):
-                self.__type = value.get_type()
+                self.type = value.get_type()
                 return value.get_result()
             
         

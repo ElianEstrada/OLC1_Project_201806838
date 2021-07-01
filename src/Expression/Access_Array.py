@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 from src.Expression.Array import Array
 from src.SymbolTable.Type import type
@@ -138,6 +139,10 @@ class Access_Array(Instruction):
                     return result
 
         return None
+
+    def get_node(self):
+        node = Ast_Node("Acces Array")
+        return node
     
     def get_type(self):
         return self.__type

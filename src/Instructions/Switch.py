@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Expression.Relational import Relational
 from src.Instructions.Break import Break
 from src.Instructions.Continue import Continue
@@ -83,6 +84,38 @@ class Switch(Instruction):
         
         elif self.__default != None:
                 return self.execute_instructions(tree, table, self.__default)
+
+
+    def get_node(self):
+        node = Ast_Node("Switch")
+        node.add_child("switch")
+        node.add_chlid("(")
+        node.add_chlids_node(self.__exp.get_node())
+        node.add_child(")")
+        node.add_child("{")
+
+        if self.__list_case != None:
+            cases = Ast_Node("Cases")
+            for case in self.__list_case:
+                cases.add_childs_node(case.get_node())
+            node.add_childs_node(cases)
+
+        if self.__default != None:
+            default = Ast_Node("Default")
+            default.add_child("default")
+            default.add_child(":")
+            inst_default = Ast_Node("Instructions")
+            for inst in self.__default:
+                inst_default.add_childs_node(inst.get_node())
+            default.add_childs_node(inst_default)
+
+            node.add_childs_node(default)
+        
+        return node
+
+
+
+        node.add_child("}")
 
 
     def execute_instructions(self, tree, table, instructions, flag = False):

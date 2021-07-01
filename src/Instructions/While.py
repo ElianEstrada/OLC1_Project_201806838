@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Instructions.Continue import Continue
 from src.Abstract.Instruction import Instruction
 from src.Instructions.Break import Break
@@ -48,3 +49,21 @@ class While(Instruction):
                     break
             else: 
                 return Error("Semantic", f"Expect a Boolean type expression not of type {self.__exp.get_typ().name}", self.row, self.column)
+
+
+    def get_node(self):
+        node = Ast_Node("While")
+        node.add_child("while")
+        node.add_child("(")
+        node.add_childs_node(self.__exp.get_node())
+        node.add_child(")")
+        node.add_child("{")
+        
+        instructions = Ast_Node("Instructions")
+        for inst in self.__instructions:
+            instructions.add_childs_node(inst.get_node())
+        node.add_childs_node(instructions)
+
+        node.add_child("}")
+
+        return node

@@ -1,0 +1,33 @@
+digraph {
+bgcolor = "#090B10";
+edge[color="#56cdff"];
+node [style="filled" fillcolor = "#0F111A" fontcolor = "white" color = "#007acc"];n0[label="Root"];
+n1 [label = "Instructions"];
+n0 -> n1;
+n2 [label = "Main"];
+n1 -> n2;
+n3 [label = "main"];
+n2 -> n3;
+n4 [label = "("];
+n2 -> n4;
+n5 [label = ")"];
+n2 -> n5;
+n6 [label = "{"];
+n2 -> n6;
+n7 [label = "Instructions"];
+n2 -> n7;
+n8 [label = "Print"];
+n7 -> n8;
+n9 [label = "print"];
+n8 -> n9;
+n10 [label = "("];
+n8 -> n10;
+n11 [label = "Primitive"];
+n8 -> n11;
+n12 [label = "Hola"];
+n11 -> n12;
+n13 [label = ")"];
+n8 -> n13;
+n14 [label = "}"];
+n2 -> n14;
+}

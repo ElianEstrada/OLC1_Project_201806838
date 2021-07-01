@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Type import type
 from src.SymbolTable.Errors import Error
@@ -143,6 +144,11 @@ class Array(Instruction):
                 return Error("Semantic", f"The type: {list_values.get_type().name} can not assigned to the type: {self.__type_init}", self.row, self.column)
 
         return expressions[:-1]
+
+
+    def get_node(self):
+        node = Ast_Node("Array")
+        return node
 
     def get_type(self):
         return self.__type_init

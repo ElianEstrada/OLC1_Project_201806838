@@ -7,6 +7,8 @@ class Tree:
         self.__console = ""
         self.__global_table = None
         self.__output_text = None
+        self.__dot = ""
+        self.__count = 0
 
 
     def set_instructions(self, instructions):
@@ -53,5 +55,23 @@ class Tree:
 
     def get_output_text(self):
         return self.__output_text
+
+    def get_dot(self, root):
+        self.__dot = ""
+        self.__dot += 'digraph {\nranksep="2";\nbgcolor = "#090B10";\nedge[color="#56cdff"];\nnode [style="filled" fillcolor = "#0F111A" fontcolor = "white" color = "#007acc"];'
+        self.__dot += 'n0[label="' + root.get_value().replace("\"", "\\\"") + '"];\n'
+        self.__count = 1
+        self.travel_ast("n0", root)
+        self.__dot += "}"
+        return self.__dot
+
+
+    def travel_ast(self, id_root, node_root):
+        for child in node_root.get_childs():
+            name_child = f"n{self.__count}"
+            self.__dot += name_child + ' [label = "' + child.get_value().replace("\"", "\\\"") + '"];\n'
+            self.__dot += f"{id_root} -> {name_child};\n"
+            self.__count += 1
+            self.travel_ast(name_child, child)
 
     

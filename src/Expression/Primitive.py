@@ -1,4 +1,5 @@
 from src.Abstract.Instruction import Instruction
+from src.Abstract.Ast_Node import Ast_Node
 
 class Primitive(Instruction):
 
@@ -10,6 +11,11 @@ class Primitive(Instruction):
 
     def interpret(self, tree, table):
         return self.__value
+
+    def get_node(self):
+        node = Ast_Node("Primitive")
+        node.add_child(str(self.__value))
+        return node
 
     def set_type(self, type):
         self.__type = type

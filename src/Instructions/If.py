@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Instructions.Break import Break
 from src.Instructions.Continue import Continue
 from src.SymbolTable.SymbolTable import SymbolTable
@@ -73,8 +74,43 @@ class If(Instruction):
                     if isinstance(result, Return):
                         return result
 
+                    if isinstance(result, Break):
+                        return result
+
+                    if isinstance(result, Continue):
+                        return result
+
         else: 
-            return Error("Semantic", f"Expect a Boolean type expression not of type {self.__exp.get_typ().name}", self.row, self.column) 
+            return Error("Semantic", f"Expect a Boolean type expression not of type {self.__exp.get_type().name}", self.row, self.column) 
 
 
-                
+    def get_node(self):
+        node = Ast_Node("If")
+        node.add_child("if")
+        node.add_child("(")
+        node.add_childs_node(self.__exp.get_node())
+        node.add_child(")")
+        node.add_child("{")
+
+        instructions_if = Ast_Node("If Instructions")
+        for inst in self.__instructions:
+            instructions_if.add_childs_node(inst.get_node())
+        
+        node.add_childs_node(instructions_if)
+        node.add_child("}")
+
+        if self.__else_instructions != None:
+            instructions_else = Ast_Node("Else Instructions")
+            node.add_child("else")
+            node.add_child("{")
+            
+            for inst in self.__else_instructions:
+                instructions_else.add_childs_node(inst.get_node())
+
+            node.add_childs_node(instructions_else)
+            node.add_child("}")
+
+        elif self.__else_if != None:
+            node.add_childs_node(self.__else_if.get_node())
+
+        return node

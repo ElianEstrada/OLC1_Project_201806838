@@ -1,4 +1,5 @@
 from src.Abstract.Instruction import Instruction
+from src.Expression.Array import Array
 from src.SymbolTable.Type import type
 from src.SymbolTable.Errors import Error
 from src.Expression.Primitive import Primitive
@@ -20,6 +21,34 @@ class Access_Array(Instruction):
 
         list_positions = []
         value_positions = 1
+
+        if self.__position == []:
+            symbol = table.get_table(self.__name)
+
+            if symbol == None:
+                return Error("Semantic", f"The id: {self.__name} doesn't exist in current context", self.row, self.column)
+
+            symbol2 = table.get_table(self.__expression)
+
+            if symbol2 == None:
+                return Error("Semantic", f"The id: {self.__expression} doesn't exist in current context", self.row, self.column)
+
+            if not isinstance(symbol, Array):
+                return Error("Semantic", f"The id: {self.__name} must be an array", self.row, self.column)
+
+            if not isinstance(symbol2, Array):
+                return Error("Semantic", f"The id: {self.__expression} must be an array", self.row, self.column)
+            
+            new_symbol = Symbol(self.__name, type.ARRAY, self.row, self.column, symbol2.get_value())
+
+            result = table.update_table(new_symbol)
+
+            if isinstance(result, Error):
+                return result
+
+            return None
+            
+
         for pos in self.__position:
 
 
@@ -27,6 +56,9 @@ class Access_Array(Instruction):
 
             if isinstance(position, Error):
                 return position
+
+            if pos.get_type() != type.INTEGGER or position < 0:
+                return Error("Semantic", f"The expression is invalid, must be of type INTEGGER", self.row, self.column)
 
             value_positions *= position
 
@@ -75,7 +107,7 @@ class Access_Array(Instruction):
                             return result
                     
                     else: 
-                        return Error("Semantic", f"The type: {self.__expression.get_type().name} can not assignated of type: {symbol.get_sub_type().name}", self.row, self.column)
+                        return Error("Semantic", f"The type: {self.__expression.get_type().name} can not assignated of type: {symbol.get_type().name}", self.row, self.column)
             else:
                 return Error("Semantic", f"{position} out to index array", self.row, self.column)
 

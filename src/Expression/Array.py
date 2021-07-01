@@ -6,7 +6,7 @@ from src.SymbolTable.Symbol import Symbol
 
 class Array(Instruction):
 
-    def __init__(self, type_init, len_init, name, type_assig, expression, list_expression, row, column):
+    def __init__(self, type_init, len_init, name, type_assig, expression, list_expression, row, column, id_array = None):
         self.__type_init = type_init
         self.__name = name.lower()
         self.__type_assig = type_assig
@@ -15,6 +15,7 @@ class Array(Instruction):
         self.__list_value = []
         self.__list_expression = list_expression
         self.__type = type.NULL
+        self.__id_array = id_array
         self.row = row
         self.column = column
 
@@ -36,8 +37,8 @@ class Array(Instruction):
                         if isinstance(value, Error):
                             return value
                         
-                        if expression.get_type() != type.INTEGGER:
-                            return Error("Semantic", f"The type: {expression.get_type().name} for expression is invalid, must be of type INTEGGER", self.row, self.count)
+                        if expression.get_type() != type.INTEGGER or value < 0:
+                            return Error("Semantic", f"The expression is invalid, must be of type INTEGGER", self.row, self.column)
 
                         len_array *= value
 
@@ -61,7 +62,7 @@ class Array(Instruction):
             else:
                 return Error("Semantic", f"The type: {self.__type_assig.name} can not assigned to type: {self.__type_init.name}", self.row, self.column)
 
-        else: 
+        elif self.__list_expression != []: 
             
             #len_array = self.calc_positions(self.__list_expression) 
 
@@ -85,6 +86,24 @@ class Array(Instruction):
             self.__list_value = self.__list_expression
 
             symbol = Symbol(self.__name, type.ARRAY, self.row, self.column, self)
+
+        else:
+
+            value = self.__id_array.interpret(tree, table)
+
+            if isinstance(value, Error):
+                return value
+
+            if not isinstance(value, Array):
+                return Error("Semantic", "Assignated only arrays", self.row, self.column)
+
+            if self.__len_init != value.get_len():
+                return Error("Semantic", f"The dimension: {value.get_len()} can not assigned to array of dimension: {self.__len_init}", self.row, self.column)
+
+            if self.__type_init != value.get_type():
+                return Error("Semantic", f"The type: {value.get_type().name} can not assigned to array of type: {self.__type_init.name}", self.row, self.column)
+
+            symbol = Symbol(self.__name, type.ARRAY, self.row, self.column, value)
 
         result = table.set_table(symbol)
 
@@ -139,3 +158,6 @@ class Array(Instruction):
 
     def set_list_value(self, list_values):
         self.__list_value = list_values
+
+    def get_len(self):
+        return self.__len_init

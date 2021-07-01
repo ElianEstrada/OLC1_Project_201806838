@@ -307,6 +307,11 @@ def p_statement_array_keys(t):
 
     t[0] = Array(t[1], t[2], t[3], None, None, t[5], t.lineno(3), find_column(input, t.slice[3]))
 
+def p_statement_array_array(t):
+    'statement_array : type list_brackets tk_id tk_assig tk_id'
+
+    t[0] = Array(t[1], t[2], t[3], None, None, [], t.lineno(3), find_column(input, t.slice[3]), Identifier(t[5], t.lineno(3), find_column(input, t.slice[3])))
+
 
 def p_statement_array_list_brackets(t):
     'list_brackets : list_brackets brackets'
@@ -368,6 +373,11 @@ def p_assignment_array(t):
 
     t[0] = Access_Array(t[1], t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
 
+# def p_assignment_array_array(t):
+#     'assignment_array : tk_id tk_assig tk_id'
+
+#     t[0] = Access_Array(t[1], [], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
 
 ###---------Production Functions---------###
 
@@ -415,6 +425,11 @@ def p_params_of_function(t):
     'params : type tk_id'
 
     t[0] = {'type': t[1], 'name': t[2]}
+
+def p_params_of_functions_arrya(t):
+    'params : type list_brackets tk_id'
+
+    t[0] = {'type': type.ARRAY, 'name': t[3], 'len': t[2]}
 
 
 

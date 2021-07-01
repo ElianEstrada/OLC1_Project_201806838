@@ -17,9 +17,14 @@ class Read(Instruction):
     def interpret(self, tree, table):
 
         tree.get_output_text().insert('insert', tree.get_console())
+        tree.get_output_text().see('end');
         #tree.set_console("")
 
-        answer = simpledialog.askstring("Input", "Ingrese un valor", parent=tree.get_output_text())
+        answer = simpledialog.askstring("Input", "Ingrese un valor")
+
+        if answer == None:
+            answer = 'null'
+
         #tree.get_output_text().insert('instert', answer)
         tree.get_output_text().delete('1.0', 'end')
 

@@ -14,7 +14,7 @@ class Array(Instruction):
         self.__expression = expression
         self.__list_value = []
         self.__list_expression = list_expression
-        self.__type = type.NULL
+        self.__type = type.ARRAY
         self.__id_array = id_array
         self.row = row
         self.column = column
@@ -146,6 +146,9 @@ class Array(Instruction):
 
     def get_type(self):
         return self.__type_init
+
+    def get_type_pattern(self):
+        return self.__type
 
     def get_expression(self):
         return self.__expression

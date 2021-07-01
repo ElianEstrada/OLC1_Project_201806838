@@ -429,7 +429,7 @@ def p_params_of_function(t):
 def p_params_of_functions_arrya(t):
     'params : type list_brackets tk_id'
 
-    t[0] = {'type': type.ARRAY, 'name': t[3], 'len': t[2]}
+    t[0] = {'type': type.ARRAY, 'name': t[3], 'len': t[2], 'sub_type': t[1]}
 
 
 

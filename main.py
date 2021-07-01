@@ -278,6 +278,7 @@ def analize(e = None):
             ast.update_console(error)
  
     txtOutput.insert('1.0', ast.get_console())
+    txtOutput.see('end')
     txtOutput.config(state='disable')
     errors = ast.get_errors()
     lbl_error_count.config(text = len(errors))
@@ -684,6 +685,7 @@ def lines(*args):
 def cssReport(): 
     txtOutput.delete(1.0, END)
     txtOutput.insert(INSERT, string)
+    #txtOutput.see()
 
 
 #########------------GUI---------------##########

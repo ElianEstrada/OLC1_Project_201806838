@@ -69,6 +69,9 @@ class Access_Array(Instruction):
         if symbol == None:
             return Error("Semantic", f"The id: {self.__name} doesn't exist in current context", self.row, self.column)
 
+        if len(list_positions) != symbol.get_value().get_len():
+            return Error("Semantic", f"{symbol.get_value().get_len()} positions were expected and only {len(list_positions)} came", self.row, self.column)
+
         if symbol.get_value().get_list_expression() == []:
 
             if value_positions <= len(symbol.get_value().get_list_value()) - 1:

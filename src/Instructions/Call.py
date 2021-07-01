@@ -51,6 +51,9 @@ class Call(Instruction):
                         if len(ob_function.get_params()[count]['len']) != value_expression.get_len():
                             return Error("Semantic", f"the size of dimensions is: {len(ob_function.get_params()[count]['len'])} not {value_expression.get_len()}", self.row, self.column)
 
+                        if ob_function.get_params()[count]['sub_type'] != value_expression.get_type():
+                            return Error("Semantic", f"The type: {value_expression.get_type().name} is different to param the type: {ob_function.get_params()[count]['sub_type']}", self.row, self.column)
+
                         value_expression = copy.copy(value_expression)
                         value_expression.set_list_value(copy.copy(value_expression.get_list_value()))
 

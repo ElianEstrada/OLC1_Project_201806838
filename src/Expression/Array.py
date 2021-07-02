@@ -148,7 +148,59 @@ class Array(Instruction):
 
     def get_node(self):
         node = Ast_Node("Array")
+        node.add_child(self.__type_init.name)
+        self.get_dimensions(node)
+        node.add_child(self.__name)
+        node.add_child("=")
+
+        if None not in (self.__type_assig, self.__expression):
+            node.add_child("new")
+            node.add_child(self.__type_assig.name)
+
+            expressions = Ast_Node("Expressions Array")
+
+            for exp in self.__expression:
+                expressions.add_child("[")
+                expressions.add_childs_node(exp.get_node())
+                expressions.add_child("]")
+
+            node.add_childs_node(expressions)
+
+        elif self.__list_expression != []:
+
+            self.get_graph_expression(node, self.__list_expression)
+
+        else: 
+            node.add_childs_node(self.__id_array.get_node())
+
+
         return node
+
+    def get_dimensions(self, node):
+        for i in range(self.__len_init):
+            node.add_child("[]")
+
+    def get_graph_expression(self, node, list_value):
+
+        if isinstance(list_value, list):
+            
+            expressions = Ast_Node("Expression List")
+            expressions.add_child("{")
+            for item in list_value:
+
+                self.get_graph_expression(expressions, item)
+            
+            expressions.add_child("}")
+
+        else:
+
+            node.add_childs_node(list_value.get_node())
+            return node
+
+        node.add_childs_node(expressions)
+        return node
+
+
 
     def get_type(self):
         return self.__type_init

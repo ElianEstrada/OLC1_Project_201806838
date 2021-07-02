@@ -142,6 +142,22 @@ class Access_Array(Instruction):
 
     def get_node(self):
         node = Ast_Node("Acces Array")
+
+        node.add_child(self.__name)
+
+        positions = Ast_Node("Expressions Array")
+
+        for exp in self.__position:
+            positions.add_child("[")
+            positions.add_childs_node(exp.get_node())
+            positions.add_child("]")
+
+        node.add_childs_node(positions)
+
+        if self.__expression != None:
+            node.add_child("=")
+            node.add_childs_node(self.__expression.get_node())
+
         return node
     
     def get_type(self):

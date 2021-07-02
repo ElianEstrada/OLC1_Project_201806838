@@ -89,8 +89,8 @@ class Switch(Instruction):
     def get_node(self):
         node = Ast_Node("Switch")
         node.add_child("switch")
-        node.add_chlid("(")
-        node.add_chlids_node(self.__exp.get_node())
+        node.add_child("(")
+        node.add_childs_node(self.__exp.get_node())
         node.add_child(")")
         node.add_child("{")
 
@@ -111,11 +111,9 @@ class Switch(Instruction):
 
             node.add_childs_node(default)
         
-        return node
-
-
-
         node.add_child("}")
+
+        return node
 
 
     def execute_instructions(self, tree, table, instructions, flag = False):

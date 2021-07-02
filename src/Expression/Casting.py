@@ -1,4 +1,5 @@
 from src.Abstract.Instruction import Instruction
+from src.Abstract.Ast_Node import Ast_Node
 from src.SymbolTable.Errors import Error
 from src.SymbolTable.Type import type
 
@@ -101,6 +102,15 @@ class Casting(Instruction):
         else: 
             return Error("Semantic", f"Can't cast the type: {self.__type.name}")
             
+
+    def get_node(self):
+        node = Ast_Node("Casting")
+        node.add_child("(")
+        node.add_child(self.__type.name)
+        node.add_child(")")
+        node.add_childs_node(self.__exp.get_node())
+
+        return node
 
     def get_type(self):
         return self.__type

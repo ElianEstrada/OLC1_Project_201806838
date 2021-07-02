@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Instructions.Continue import Continue
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Errors import Error
@@ -32,3 +33,20 @@ class Main(Instruction):
                 error = Error("Semantic", "The Instruction Continue is loop instruction", instruction.row, instruction.column)
                 tree.get_errors().append(error)
                 tree.update_console(error)
+
+
+    def get_node(self):
+        node = Ast_Node("Main")
+        node.add_child("main")
+        node.add_child("(")
+        node.add_child(")")
+        node.add_child("{")
+
+        instructions = Ast_Node("Instructions")
+        for inst in self.__instructions:
+            instructions.add_childs_node(inst.get_node())
+        node.add_childs_node(instructions)
+
+        node.add_child("}")
+
+        return node

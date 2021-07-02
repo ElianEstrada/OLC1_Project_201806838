@@ -155,6 +155,9 @@ from src.Natives.Truncate import Truncate
 from src.Natives.Type_Of import Type_Of
 
 
+##Import for Graph Tree
+from src.Abstract.Ast_Node import Ast_Node
+
 ###---------Native function---------###
 def create_native_functions(ast):
 
@@ -276,6 +279,8 @@ def analize(e = None):
             error = Error("Semantic", "Instruction outside the main method", instruction.row, instruction.column)
             ast.get_errors().append(error)
             ast.update_console(error)
+
+    graph_tree(ast)
  
     txtOutput.insert('1.0', ast.get_console())
     txtOutput.see('end')
@@ -283,6 +288,34 @@ def analize(e = None):
     errors = ast.get_errors()
     lbl_error_count.config(text = len(errors))
     print(ast.get_console())
+
+
+def graph_tree(ast):
+    
+    init = Ast_Node("Root")
+    inst = Ast_Node("Instructions")
+
+    for instruction in ast.get_instructions():
+        inst.add_childs_node(instruction.get_node())
+    
+    init.add_childs_node(inst)
+
+    graph = ast.get_dot(init)
+
+    os.makedirs('report', exist_ok=True)
+
+    with open("report/ast.dot", "w+") as fileSave: 
+            fileSave.write(graph)
+
+    if os.name == 'nt':
+        subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
+        dir_name = os.path.dirname(__file__)
+        os.startfile(dir_name + '\\report\\ast.svg')
+    else: 
+        dir_name = os.path.dirname(__file__)
+        subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
+        subprocess.call(["xdg-open", "report/ast.svg"])
+        #subprocess.call(["xdg-open", "report/errors.html"])
 
 
 def report_error(e = None):

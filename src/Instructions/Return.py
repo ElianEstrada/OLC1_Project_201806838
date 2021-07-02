@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Errors import Error
 
@@ -24,6 +25,12 @@ class Return(Instruction):
 
     
         return self
+
+    def get_node(self):
+        node = Ast_Node("Return")
+        node.add_childs_node(self.__expression.get_node())
+
+        return node
 
     def get_type(self):
         return self.__type

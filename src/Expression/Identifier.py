@@ -1,4 +1,5 @@
 from src.Abstract.Instruction import Instruction
+from src.Abstract.Ast_Node import Ast_Node
 from src.SymbolTable.Errors import Error
 
 
@@ -21,6 +22,12 @@ class Identifier(Instruction):
         self.__type = symbol.get_type()
 
         return symbol.get_value()
+
+    def get_node(self):
+        node = Ast_Node("Identifier")
+        node.add_child(self.__id)
+
+        return node
 
     
     def set_id(self, id):

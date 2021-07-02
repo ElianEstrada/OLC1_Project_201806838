@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 
 
@@ -10,3 +11,7 @@ class Continue(Instruction):
 
     def interpret(self, tree, table):
         return self
+
+    def get_node(self):
+        node = Ast_Node("Continue")
+        return node

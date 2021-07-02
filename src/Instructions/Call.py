@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.SymbolTable.Symbol import Symbol
 from src.Abstract.Instruction import Instruction
@@ -75,6 +76,18 @@ class Call(Instruction):
         self.__type = ob_function.get_type()
 
         return value
+
+    def get_node(self):
+        node = Ast_Node("Call Function")
+        node.add_child(self.__name)
+        node.add_child("(")
+        parameters = Ast_Node("Parameters")
+        for param in self.__params:
+            parameters.add_childs_node(param.get_node())
+        node.add_childs_node(parameters)
+        node.add_child(")")
+
+        return node
 
     def get_type(self):
         return self.__type

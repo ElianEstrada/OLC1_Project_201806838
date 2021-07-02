@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Symbol import Symbol
 from src.SymbolTable.Errors import Error
@@ -45,6 +46,14 @@ class Assignment(Instruction):
         
         return None
             
+
+    def get_node(self):
+        node = Ast_Node("Assignment")
+        node.add_child(self.__id)
+        node.add_child("=")
+        node.add_childs_node(self.__expression.get_node())
+
+        return node
 
 
     def set_id(self, id):

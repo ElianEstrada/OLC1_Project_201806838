@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Instructions.Continue import Continue
 from src.Instructions.Return import Return
 from src.Abstract.Instruction import Instruction
@@ -46,6 +47,30 @@ class Function(Instruction):
         
         return None
 
+
+    def get_node(self):
+        node = Ast_Node("Function")
+        node.add_child(self.name)
+        node.add_child("(")
+
+        params = Ast_Node("Parameters")
+        for parameter in self.params:
+            param = Ast_Node("Parameter")
+            param.add_child(parameter['type'].name)
+            param.add_child(parameter['name'])
+            params.add_childs_node(param)
+        node.add_childs_node(params)
+        node.add_child(")")
+        node.add_child("{")
+
+        instructions = Ast_Node("Instructions")
+        for inst in self.instructions:
+            instructions.add_childs_node(inst.get_node())
+        
+        node.add_childs_node(instructions)
+        node.add_child("}")
+
+        return node
 
     def get_type(self):
         return self.type

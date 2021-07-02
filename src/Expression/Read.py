@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Errors import Error
 from src.SymbolTable.Type import type
@@ -33,6 +34,10 @@ class Read(Instruction):
         #print(answer)
 
         return answer
+
+    def get_node(self):
+        node = Ast_Node("Read")
+        return node
 
     def get_type(self):
         return self.__type

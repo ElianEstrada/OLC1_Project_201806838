@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Type import type, Relational_Operators
 from src.SymbolTable.Errors import Error
@@ -120,6 +121,29 @@ class Relational(Instruction):
         elif operator == '>=':
             return str(left >= right).lower()
 
+    def get_operator(self, operator):
+
+        if operator == Relational_Operators.EQUAL:
+            return '=='
+        elif operator == Relational_Operators.UNEQUAL:
+            return '=!'
+        elif operator == Relational_Operators.GREATER:
+            return '>'
+        elif operator == Relational_Operators.GREATEREQUAL:
+            return '>='
+        elif operator == Relational_Operators.LESS:
+            return '<'
+        elif operator == Relational_Operators.LESSEQUAL:
+            return '<='
+
+
+    def get_node(self):
+        node = Ast_Node("Expression Relational")
+        node.add_childs_node(self.__exp1.get_node())
+        node.add_child(self.get_operator(self.__operator))
+        node.add_childs_node(self.__exp2.get_node())
+    
+        return node
 
     def get_type(self):
         return self.__type

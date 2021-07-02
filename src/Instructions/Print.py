@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Errors import Error
 from src.SymbolTable.Type import type
@@ -22,3 +23,13 @@ class Print(Instruction):
             return Error("Semantic", "NullPointer Exception", self.row, self.column)
 
         tree.update_console("> " + str(value))
+
+    def get_node(self):
+
+        node = Ast_Node("Print")
+        node.add_child("print")
+        node.add_child("(")
+        node.add_childs_node(self.__expression.get_node())
+        node.add_child(")")
+
+        return node

@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Expression.Identifier import Identifier
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Errors import Error
@@ -256,5 +257,37 @@ class Arithmetic(Instruction):
                     return Error("Semantic", f"The operator: {self.__operator.name} can only be used on variables", self.row, self.column)
 
             
+    def get_operator(self, operator):
+
+        if operator == Arithmetic_Operator.ADDITION:
+            return '+'
+        elif operator == Arithmetic_Operator.SUBSTRACTION:
+            return '-'
+        elif operator == Arithmetic_Operator.MULTIPLICATION:
+            return '*'
+        elif operator == Arithmetic_Operator.DIVISION:
+            return '/'
+        elif operator == Arithmetic_Operator.POWER:
+            return '**'
+        elif operator == Arithmetic_Operator.MODULS:
+            return '%'
+        elif operator == Arithmetic_Operator.INC:
+            return '++'
+        elif operator == Arithmetic_Operator.DEC:
+            return '--'
+
+    def get_node(self):
+        node = Ast_Node("Expression Arithmetic")
+
+        if self.__exp2 != None:
+            node.add_childs_node(self.__exp1.get_node())
+            node.add_child(self.get_operator(self.__operator))
+            node.add_childs_node(self.__exp2.get_node())
+        else: 
+            node.add_child("-")
+            node.add_childs_node(self.__exp1.get_node())
+
+        return node 
+
     def get_type(self):
         return self.__type

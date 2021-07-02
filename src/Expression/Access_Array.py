@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 from src.Expression.Array import Array
 from src.SymbolTable.Type import type
@@ -138,6 +139,26 @@ class Access_Array(Instruction):
                     return result
 
         return None
+
+    def get_node(self):
+        node = Ast_Node("Acces Array")
+
+        node.add_child(self.__name)
+
+        positions = Ast_Node("Expressions Array")
+
+        for exp in self.__position:
+            positions.add_child("[")
+            positions.add_childs_node(exp.get_node())
+            positions.add_child("]")
+
+        node.add_childs_node(positions)
+
+        if self.__expression != None:
+            node.add_child("=")
+            node.add_childs_node(self.__expression.get_node())
+
+        return node
     
     def get_type(self):
         return self.__type

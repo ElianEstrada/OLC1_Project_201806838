@@ -20,6 +20,9 @@ class Type_Of(Function):
         if symbol == None:
             return Error("Semantic", "Identifier not found in the current context")
         
+        if symbol.get_type() == type.ARRAY:
+            return f"{symbol.get_type().name} -> {symbol.get_value().get_type().name}"
+
         return symbol.get_type().name
 
     def get_type(self):

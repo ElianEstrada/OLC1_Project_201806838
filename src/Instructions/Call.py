@@ -23,7 +23,7 @@ class Call(Instruction):
         if ob_function == None:
             return Error("Semantic", f"The function whit the name: {self.__name} doesn't exits", self.row, self.column)
 
-        new_table = SymbolTable(tree.get_global_table())
+        new_table = SymbolTable(tree.get_global_table(), f"Function-{self.__name}", tree.get_global_table().get_widget())
 
         if len(ob_function.get_params()) == len(self.__params): 
 

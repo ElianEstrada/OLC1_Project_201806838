@@ -27,7 +27,7 @@ class If(Instruction):
         if self.__exp.get_type() == type.BOOLEAN:
             if flag == "true":
 
-                new_table = SymbolTable(table)
+                new_table = SymbolTable(table, f"If-{self.row}-{self.column}", table.get_widget())
 
                 for item in self.__instructions:
                     instruction = item.interpret(tree, new_table)
@@ -47,7 +47,7 @@ class If(Instruction):
             else:
                 if self.__else_instructions != None:
 
-                    new_table = SymbolTable(table)
+                    new_table = SymbolTable(table, f"Else-{self.row}-{self.column}", table.get_widget())
                     for item in self.__else_instructions:
                         instruction_else = item.interpret(tree, new_table)
 

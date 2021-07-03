@@ -16,6 +16,7 @@ class For(Instruction):
         self.__condition = condition
         self.__advance = advance
         self.__instructions = instructions
+        self.__count = 0
         self.row = row
         self.column = column
 
@@ -27,7 +28,7 @@ class For(Instruction):
             new_table = None
             declar_flag = False
             if isinstance(self.__init, Declaration):
-                new_table = SymbolTable(table)
+                new_table = SymbolTable(table, f"Init_For-{self.__init.row}-{self.__init.column}", table.get_widget())
                 declar_flag = True
                 init = self.__init.interpret(tree, new_table)
             else:
@@ -50,9 +51,15 @@ class For(Instruction):
                     if flag == "true":
 
                         if not declar_flag:
-                            new_table = SymbolTable(table)
+                            if self.__count == 0:
+                                new_table = SymbolTable(table, f"For-{self.row}-{self.column}", table.get_widget())
+                            else:
+                                new_table = SymbolTable(table, f"For-{self.row}-{self.column}")
                         else:
-                            new_table = SymbolTable(new_table)
+                            if self.__count == 0:
+                                new_table = SymbolTable(new_table, f"For-{self.row}-{self.column}", new_table.get_widget())
+                            else:
+                                new_table = SymbolTable(new_table, f"For-{self.row}-{self.column}")
 
                         if self.__instructions != None:
                             for item in self.__instructions:
@@ -79,6 +86,8 @@ class For(Instruction):
                         break
                 else:
                     return Error("Semantic", f"Expect a Boolean type expression not of type {self.__exp.get_typ().name}", self.row, self.column)
+                
+                self.__count += 1
 
         else:
             return Error("Semantic", "Expression Expected", self.row, self.column)

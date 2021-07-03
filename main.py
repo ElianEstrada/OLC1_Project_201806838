@@ -320,7 +320,8 @@ def analize(e = None):
     for item in ts_global.get_variables():
         #print(f"{item.get_id()} - {item.get_environment()} - {item.get_value()}")
         if item.get_type() == type.ARRAY:
-            pass
+            print(item.get_value())
+            table.insert('', "end", text=item.get_id(), values=(item.get_type(), item.get_value().get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
         else:
             table.insert('', "end", text=item.get_id(), values=("VARIABLE", item.get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
  

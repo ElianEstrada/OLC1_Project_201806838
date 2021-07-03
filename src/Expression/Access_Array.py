@@ -14,6 +14,7 @@ class Access_Array(Instruction):
         self.__position = position
         self.__expression = expression
         self.__type = type.NULL
+        self.__value = None
         self.row = row
         self.column = column
 
@@ -91,7 +92,7 @@ class Access_Array(Instruction):
                             return value
 
                         self.__type = symbol.get_value().get_list_value()[real_position].get_type()
-
+                        self.__value = value
                         return value
 
                 else:
@@ -124,6 +125,7 @@ class Access_Array(Instruction):
                     return value
 
                 self.__type = symbol.get_value().get_type()
+                self.__value = value
                 return value
 
             else: 
@@ -214,3 +216,5 @@ class Access_Array(Instruction):
 
         return expressions
 
+    def __str__(self):
+        return str(self.__value)

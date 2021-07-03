@@ -14,6 +14,7 @@ class Array(Instruction):
         self.__len_init = len(len_init)
         self.__expression = expression
         self.__list_value = []
+        self.__list_table = []
         self.__list_expression = list_expression
         self.__type = type.ARRAY
         self.__id_array = id_array
@@ -54,6 +55,7 @@ class Array(Instruction):
                         count += 1
 
                     self.__list_value = list_value
+                    #self.__list_table = self.table_value(self.__list_value, tree, table)
 
                     symbol = Symbol(self.__name, type.ARRAY, self.row, self.column, self)
 
@@ -85,6 +87,7 @@ class Array(Instruction):
             #    list_values.append(primitive)
 
             self.__list_value = self.__list_expression
+            #self.__list_table = self.table_value(self.__list_expression, tree, table)
 
             symbol = Symbol(self.__name, type.ARRAY, self.row, self.column, self)
 
@@ -222,3 +225,23 @@ class Array(Instruction):
 
     def get_len(self):
         return self.__len_init
+
+    def __str__(self):
+        #return str(self.__list_table).replace('[', '{').replace(']', '}')
+        return str(self.table_value(self.__list_value)).replace('[', '{').replace(']', '}').replace("'", '')
+
+
+    def table_value(self, list_values):
+
+        expressions = []
+
+        if isinstance(list_values, list):
+
+            for item in list_values:
+                expressions.append(self.table_value(item))
+
+        else: 
+            #return list_values.interpret(tree, table)
+            return str(list_values)
+
+        return expressions

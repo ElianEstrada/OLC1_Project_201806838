@@ -14,6 +14,7 @@ class Call(Instruction):
         self.__name = name.lower()
         self.__params = params
         self.__type = None
+        self.__value = None
         self.row = row
         self.column = column
 
@@ -74,7 +75,7 @@ class Call(Instruction):
             return value
 
         self.__type = ob_function.get_type()
-
+        self.__value = value
         return value
 
     def get_node(self):
@@ -91,3 +92,6 @@ class Call(Instruction):
 
     def get_type(self):
         return self.__type
+
+    def __str__(self):
+        return str(self.__value)

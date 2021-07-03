@@ -10,6 +10,7 @@ class Logic(Instruction):
         self.__operator = operator
         self.__exp1 = exp1
         self.__exp2 = exp2
+        self.__value = None
         self.row = row
         self.column = column
         self.__type = type.BOOLEAN
@@ -36,8 +37,10 @@ class Logic(Instruction):
 
 
                 if self.__operator == Logical_Operators.AND:
+                    self.__value = str(self.__bolean[left] and self.__bolean[right]).lower()
                     return str(self.__bolean[left] and self.__bolean[right]).lower()
                 elif self.__operator == Logical_Operators.OR:
+                    self.__value = str(self.__bolean[left] or self.__bolean[right]).lower()
                     return str(self.__bolean[left] or self.__bolean[right]).lower()
             else: 
                 return Error("Semantic", f"This operators only work whit type BOOLEAN", self.row, self.column)
@@ -45,6 +48,7 @@ class Logic(Instruction):
         else:
 
             if type.BOOLEAN == self.__exp1.get_type():
+                self.__value = str(not self.__bolean[left]).lower()
                 return str(not self.__bolean[left]).lower()
 
             return Error("Semantic", f"The type: {self.__exp1.get_type().name} does not work whit operator !", self.row, self.column)
@@ -71,3 +75,6 @@ class Logic(Instruction):
 
     def get_type(self):
         return self.__type
+
+    def __str__(self):
+        return self.__value 

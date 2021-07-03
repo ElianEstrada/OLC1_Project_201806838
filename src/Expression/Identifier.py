@@ -8,6 +8,7 @@ class Identifier(Instruction):
     def __init__(self, id, row, column):
         self.__id = id
         self.__type = None
+        self.__value = None
         self.row = row
         self.column = column
 
@@ -21,6 +22,7 @@ class Identifier(Instruction):
 
         self.__type = symbol.get_type()
 
+        self.__value = symbol.get_value()
         return symbol.get_value()
 
     def get_node(self):
@@ -41,3 +43,6 @@ class Identifier(Instruction):
 
     def get_type(self):
         return self.__type
+
+    def __str__(self):
+        return str(self.__value)

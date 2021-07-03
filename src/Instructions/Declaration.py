@@ -24,7 +24,7 @@ class Declaration(Instruction):
             
             symbol = Symbol(self.__id, self.__expression.get_type(), self.row, self.column, value)
         else:
-            symbol = Symbol(self.__id, type.NULL, self.row, self.column, None)
+            symbol = Symbol(self.__id, type.NULL, self.row, self.column, 'null')
 
         result = table.set_table(symbol)
 

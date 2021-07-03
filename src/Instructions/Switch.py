@@ -15,6 +15,8 @@ class Switch(Instruction):
         self.__exp = exp
         self.__list_case = list_case
         self.__default = default
+        self.__row_case = 0
+        self.__column_case = 0
         self.row = row
         self.column = column
         self.__flag = False
@@ -67,6 +69,8 @@ class Switch(Instruction):
                     return result
                 
                 if result == "true":
+                    self.__row_case = item.row
+                    self.__column_case = item.column
                     result_interpret = self.execute_instructions(tree, table, item.get_instructions(), True)
                     if result_interpret == None and not self.__flag:
                             return None
@@ -117,7 +121,10 @@ class Switch(Instruction):
 
 
     def execute_instructions(self, tree, table, instructions, flag = False):
-        new_table = SymbolTable(table)
+        if flag:
+            new_table = SymbolTable(table, f"Switch-Case-{self.__row_case}-{self.__column_case}", table.get_widget())
+        else:
+            new_table = SymbolTable(table, f"Switch-Default-{self.row}-{self.column}", table.get_widget())
 
         for item in instructions:
             instruction = item.interpret(tree, new_table)

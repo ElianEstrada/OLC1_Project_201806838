@@ -1,8 +1,10 @@
+from src.Instructions.Function import Function
 from src.Abstract.Ast_Node import Ast_Node
 from src.Instructions.Continue import Continue
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Errors import Error
 from src.Instructions.Break import Break
+from src.SymbolTable.Type import type
 from src.SymbolTable.SymbolTable import SymbolTable
 
 
@@ -15,9 +17,17 @@ class Main(Instruction):
 
     def interpret(self, tree, table):
         
-        new_table = SymbolTable(table)
+        new_table = SymbolTable(table, "Method_Main", table.get_widget())
+
+        tree.set_symbol_table(new_table)
 
         for item in self.__instructions:
+
+            if isinstance(item, Function):
+                error = Error("Semantic", "The Instruction Func don't be into of method main", item.row, item.column)
+                tree.get_errors().append(error)
+                tree.update_console(error)
+
             instruction = item.interpret(tree, new_table)
 
             if isinstance(instruction, Error):

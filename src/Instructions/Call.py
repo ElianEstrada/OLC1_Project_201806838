@@ -14,6 +14,7 @@ class Call(Instruction):
         self.__name = name.lower()
         self.__params = params
         self.__type = None
+        self.__value = None
         self.row = row
         self.column = column
 
@@ -23,7 +24,7 @@ class Call(Instruction):
         if ob_function == None:
             return Error("Semantic", f"The function whit the name: {self.__name} doesn't exits", self.row, self.column)
 
-        new_table = SymbolTable(tree.get_global_table())
+        new_table = SymbolTable(tree.get_global_table(), f"Function-{self.__name}", tree.get_global_table().get_widget())
 
         if len(ob_function.get_params()) == len(self.__params): 
 
@@ -74,7 +75,7 @@ class Call(Instruction):
             return value
 
         self.__type = ob_function.get_type()
-
+        self.__value = value
         return value
 
     def get_node(self):
@@ -91,3 +92,6 @@ class Call(Instruction):
 
     def get_type(self):
         return self.__type
+
+    def __str__(self):
+        return str(self.__value)

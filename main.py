@@ -138,6 +138,8 @@ from src.SymbolTable.SymbolTable import SymbolTable
 from src.Instructions.Main import Main
 from src.Instructions.Assignment import Assignment
 from src.Instructions.Declaration import Declaration
+from src.Expression.Array import Array
+from src.Expression.Access_Array import Access_Array
 from src.SymbolTable.Errors import Error
 from src.Instructions.Break import Break
 from src.Instructions.Continue import Continue
@@ -201,6 +203,13 @@ def analize(e = None):
     txtOutput.config(state='normal')
     txtOutput.delete("1.0", "end")
 
+    for item in table.get_children():
+        print(table.item(item))
+
+    table.delete(*table.get_children())
+
+
+
     text = txtInput.get("1.0", "end")
     txtInput.delete("1.0", "end")
     for item in paint_words(text[0:len(text)-1]):
@@ -215,8 +224,10 @@ def analize(e = None):
     
     ast = Tree(instructions)
     ts_global = SymbolTable()
+    ts_global.set_widget(table)
     ast.set_global_table(ts_global)
     ast.set_output_text(txtOutput)
+    #ast.set_table(table)
 
     create_native_functions(ast)
 
@@ -225,17 +236,28 @@ def analize(e = None):
         ast.update_console(error)
 
 
+    if len(ts_global.get_variables()) > 0:
+        ts_global.get_variables().clear()
+
     ##-----------First Run for declarations and assignment-----------##
     for instruction in ast.get_instructions():
         if isinstance(instruction, Function):
             ast.add_function(instruction)
-        if isinstance(instruction, (Declaration, Assignment)):
+        if isinstance(instruction, (Declaration, Assignment, Array, Access_Array)):
             value = instruction.interpret(ast, ts_global)
             if isinstance(value, Error):
                 ast.get_errors().append(value)
                 ast.update_console(value)
             if isinstance(instruction, Break):
                 error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
+                ast.get_errors().append(error)
+                ast.update_console(error)
+            if isinstance(instruction, Continue): 
+                error = Error("Semantic", "The instruction Continue is loop instruction")
+                ast.get_errors().append(error)
+                ast.update_console(error)
+            if isinstance(instruction, Return):
+                error = Error("Semantic", "The Instruction Return is loop instruction", instruction.row, instruction.column)
                 ast.get_errors().append(error)
                 ast.update_console(error)
 
@@ -275,12 +297,33 @@ def analize(e = None):
 
     ##-----------Fourth Run for instruction out main-----------##
     for instruction in ast.get_instructions():
-        if not isinstance(instruction, (Main, Declaration, Assignment, Function)):
+        if not isinstance(instruction, (Main, Declaration, Assignment, Function, Array, Access_Array)):
             error = Error("Semantic", "Instruction outside the main method", instruction.row, instruction.column)
             ast.get_errors().append(error)
             ast.update_console(error)
 
     graph_tree(ast)
+
+    #ast.get_symbol_table()
+    #print(ts_global.get_variables())
+    for item in ast.get_function_all():
+        if item.get_name() in ('toupper', 'tolower', 'length', 'round', 'truncate', 'typeof'):
+            continue
+        
+        if item.get_type() == type.NULL:
+            declaration_type = "Method"
+        else:
+            declaration_type = "Function"
+        
+        table.insert('', 'end', text=item.get_name(), values=(declaration_type, "VOID" if item.get_type() == type.NULL else item.get_type().name, "-", "-", item.row, item.column))
+    
+    for item in ts_global.get_variables():
+        #print(f"{item.get_id()} - {item.get_environment()} - {item.get_value()}")
+        if item.get_type() == type.ARRAY:
+            print(item.get_value())
+            table.insert('', "end", text=item.get_id(), values=(item.get_type(), item.get_value().get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
+        else:
+            table.insert('', "end", text=item.get_id(), values=("VARIABLE", item.get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
  
     txtOutput.insert('1.0', ast.get_console())
     txtOutput.see('end')
@@ -307,14 +350,14 @@ def graph_tree(ast):
     with open("report/ast.dot", "w+") as fileSave: 
             fileSave.write(graph)
 
-    if os.name == 'nt':
-        subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
-        dir_name = os.path.dirname(__file__)
-        os.startfile(dir_name + '\\report\\ast.svg')
-    else: 
-        dir_name = os.path.dirname(__file__)
-        subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
-        subprocess.call(["xdg-open", "report/ast.svg"])
+    # if os.name == 'nt':
+    #     subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
+    #     dir_name = os.path.dirname(__file__)
+    #     os.startfile(dir_name + '\\report\\ast.svg')
+    # else: 
+    #     dir_name = os.path.dirname(__file__)
+    #     subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
+    #     subprocess.call(["xdg-open", "report/ast.svg"])
         #subprocess.call(["xdg-open", "report/errors.html"])
 
 
@@ -939,6 +982,49 @@ scroll_output = Scrollbar(myFrame2, command=txtOutput.xview, orient="horizontal"
 scroll_output.grid(row = 3, column = 4, columnspan=2, sticky="ew", pady=(0, 24))
 scroll_output.config(width=12)
 txtOutput['xscrollcommand'] = scroll_output.set
+
+
+myFrame7 = Frame(bg ='#090B10')
+myFrame7.pack(side = 'bottom')
+myFrame7.config(width = "920")
+
+
+
+##-------Scroll Horizontal for Tree_View--------##
+scroll_table_h = Scrollbar(myFrame7, orient="horizontal", bg="#090B10", activebackground="gray")
+scroll_table_h.pack(side = "bottom", fill = "x", pady=(0, 10))
+scroll_table_h.config(width=12)
+
+
+##-------Table of Symbol Table--------##
+table = ttk.Treeview(myFrame7, columns=("1", "2", "3", "4", "5", "6"))
+
+table.column('3', width="356")
+table.column('5', width="80")
+table.column('6', width="80")
+
+table.heading("#0", text = "Identifier")
+table.heading("1", text = "Type")
+table.heading("2", text = "Type")
+table.heading("3", text = "Environment")
+table.heading("4", text = "Value")
+table.heading("5", text = "Row")
+table.heading("6", text = "Column")
+#table.grid(row = 0, column = 0, sticky= "ew", pady = (0, 10))
+table.pack(side="left")
+
+table.insert('', END, text="hola", values=("int", "int", "GlobalGlobalGlobal", "34", "1", "2"))
+
+
+scroll_table_h.configure(command=table.xview)
+table['xscrollcommand'] = scroll_table_h.set
+
+##-------Scroll for Tree_View--------##
+scroll_table = Scrollbar(myFrame7, command=table.yview, bg="#090B10", activebackground="gray")
+scroll_table.pack(side = "right", fill = "y")
+scroll_table.config(width=12)
+table['yscrollcommand'] = scroll_table.set
+
 
 root.config(menu = barMenu)
 

@@ -13,6 +13,7 @@ class While(Instruction):
     def __init__(self, exp, instructions, row, column):
         self.__exp = exp
         self.__instructions = instructions
+        self.__count = 0
         self.row = row
         self.column = column
 
@@ -28,7 +29,10 @@ class While(Instruction):
                 
                 if flag == "true":
 
-                    new_table = SymbolTable(table)
+                    if self.__count == 0:
+                        new_table = SymbolTable(table, f"While-{self.row}-{self.column}", table.get_widget())
+                    else:
+                        new_table = SymbolTable(table, f"While-{self.row}-{self.column}")
 
                     for item in self.__instructions:
                         instruction = item.interpret(tree, new_table)
@@ -49,6 +53,8 @@ class While(Instruction):
                     break
             else: 
                 return Error("Semantic", f"Expect a Boolean type expression not of type {self.__exp.get_typ().name}", self.row, self.column)
+
+            self.__count += 1
 
 
     def get_node(self):

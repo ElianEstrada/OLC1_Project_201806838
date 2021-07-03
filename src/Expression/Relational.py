@@ -9,6 +9,7 @@ class Relational(Instruction):
         self.__operator = operator
         self.__exp1 = exp1
         self.__exp2 = exp2
+        self.__value = None
         self.row = row
         self.column = column
         self.__type = type.BOOLEAN
@@ -109,16 +110,22 @@ class Relational(Instruction):
     def to_lower(self, left, right, operator):
 
         if operator == '==':
+            self.__value = str(left == right).lower()
             return str(left == right).lower()
         elif operator == '=!':
+            self.__value = str(left != right).lower()
             return str(left != right).lower()
         elif operator == '<':
+            self.__value = str(left < right).lower()
             return str(left < right).lower()
         elif operator == '<=':
+            self.__value = str(left <= right).lower()
             return str(left <= right).lower()
         elif operator == '>':
+            self.__value = str(left > right).lower()
             return str(left > right).lower()
         elif operator == '>=':
+            self.__value = str(left >= right).lower()
             return str(left >= right).lower()
 
     def get_operator(self, operator):
@@ -147,3 +154,6 @@ class Relational(Instruction):
 
     def get_type(self):
         return self.__type
+
+    def __str__(self):
+        return self.__value

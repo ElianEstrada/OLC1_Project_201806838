@@ -30,6 +30,6 @@ class Primitive(Instruction):
         return self.__value
 
     def __str__(self):
-        return f"{self.__type} - {self.__value} in [{self.row}, {self.column}]"
+        return str(self.__value)
 
         

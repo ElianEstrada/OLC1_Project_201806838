@@ -192,12 +192,22 @@ def create_native_functions(ast):
     type_of = Type_Of('typeof', [{'type': type.NULL, 'name': 'type_of##param1'}], [], -1, -1)
     ast.add_function(type_of)
 
+
+flag_debugg = False
+
+def debugge_start(e = None):
+    global flag_debugg
+    flag_debugg = True
+    analize()
+
+
 ###---------Analize function---------###
 def analize(e = None): 
     global fileInput
     global string
     global pathFileJs
     global errors
+    global flag_debugg
 
     errors = []
     txtOutput.config(state='normal')
@@ -223,8 +233,9 @@ def analize(e = None):
     ts_global.set_widget(table)
     ast.set_global_table(ts_global)
     ast.set_output_text(txtOutput)
-    ast.set_debugg(False)
-    #ast.set_table(table)
+    ast.set_input_text(txtInput)
+    ast.set_debugg(flag_debugg)
+    ast.set_table(table)
 
     create_native_functions(ast)
 
@@ -300,6 +311,7 @@ def analize(e = None):
             ast.update_console(error)
 
     graph_tree(ast)
+    table.delete(*table.get_children())
 
     #ast.get_symbol_table()
     #print(ts_global.get_variables())
@@ -315,7 +327,6 @@ def analize(e = None):
         table.insert('', 'end', text=item.get_name(), values=(declaration_type, "VOID" if item.get_type() == type.NULL else item.get_type().name, "-", "-", item.row, item.column))
     
     # symbol_table_values = []
-
     # for item in ts_global.get_variables():
     #     if item not in symbol_table_values:
     #         symbol_table_values.append(item)
@@ -328,6 +339,7 @@ def analize(e = None):
         else:
             table.insert('', "end", text=item.get_id(), values=("VARIABLE", item.get_type().name, item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
  
+    txtOutput.delete('1.0', 'end')
     txtOutput.insert('1.0', ast.get_console())
     txtOutput.see('end')
     txtOutput.config(state='disable')
@@ -335,124 +347,7 @@ def analize(e = None):
     lbl_error_count.config(text = len(errors))
     #print(ast.get_console())
 
-
-count_debugg = 0
-
-def debugge_start(e = None):
-    lbl_next.grid(pady = (20, 0), padx = 0)
-    lbl_stop.grid(pady = (20, 0), padx = 0)
-
-def stop(e = None):
-    global count_debugg
-    lbl_next.grid_forget()
-    lbl_stop.grid_forget()
-    count_debugg = 0
-    #txtInput.
-
-def debugge(e = None):
-    global count_debugg
-    
-    
-    debugge_count(count_debugg)
-    count_debugg += 1 
-    
-import tkinter.messagebox as msg
-def debugge_count(count):
-
-    #var = msg.askyesno(title="Debugger", message="Continue?...")
-
-    #print(var)
-
-    errors = []
-    txtOutput.config(state='normal')
-    txtOutput.delete("1.0", "end")
-
-    table.delete(*table.get_children())
-
-
-    text = txtInput.get("1.0", "end")
-    txtInput.delete("1.0", "end")
-    for item in paint_words(text[0:len(text)-1]):
-        txtInput.insert(INSERT, item[1], item[0])
-
-    instructions = parser(txtInput.get('1.0', 'end'))
-    if instructions == None:
-        value = messagebox.showerror("Instructions", "No Instructions for interpret")
-        return
-    #print(instructions)
-
-    
-    ast = Tree(instructions)
-    ts_global = SymbolTable()
-    ts_global.set_widget(table)
-    ast.set_global_table(ts_global)
-    ast.set_output_text(txtOutput)
-    #ast.set_table(table)
-
-    create_native_functions(ast)
-
-    for error in get_errors():
-        ast.get_errors().append(error)
-        ast.update_console(error)
-
-
-    if len(ts_global.get_variables()) > 0:
-        ts_global.get_variables().clear()
-
-    
-
-    ##-----------First Run for declarations and assignment-----------##
-    if count < len(ast.get_instructions()):
-        for i in range(count+1):
-            if isinstance(ast.get_instructions()[i], Function):
-                ast.add_function(ast.get_instructions()[i])
-            if isinstance(ast.get_instructions()[i], (Declaration, Assignment, Array, Access_Array)):
-                value = ast.get_instructions()[i].interpret(ast, ts_global)
-                if isinstance(value, Error):
-                    ast.get_errors().append(value)
-                    ast.update_console(value)
-                if isinstance(ast.get_instructions()[i], Break):
-                    error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", ast.get_instructions()[i].row, ast.get_instructions()[i].column)
-                    ast.get_errors().append(error)
-                    ast.update_console(error)
-                if isinstance(ast.get_instructions()[i], Continue): 
-                    error = Error("Semantic", "The instruction Continue is loop instruction")
-                    ast.get_errors().append(error)
-                    ast.update_console(error)
-                if isinstance(ast.get_instructions()[i], Return):
-                    error = Error("Semantic", "The Instruction Return is loop instruction", ast.get_instructions()[i].row, ast.get_instructions()[i].column)
-                    ast.get_errors().append(error)
-                    ast.update_console(error)
-    else: 
-        return
-    row_text = ast.get_instructions()[count].row
-    txtInput.tag_add("debugg", f"{row_text}.0", f"{row_text + 1}.0")
-
-    for item in ast.get_function_all():
-        if item.get_name() in ('toupper', 'tolower', 'length', 'round', 'truncate', 'typeof'):
-            continue
-        
-        if item.get_type() == type.NULL:
-            declaration_type = "Method"
-        else:
-            declaration_type = "Function"
-        
-        table.insert('', 'end', text=item.get_name(), values=(declaration_type, "VOID" if item.get_type() == type.NULL else item.get_type().name, "-", "-", item.row, item.column))
-    
-    for item in ts_global.get_variables():
-        #print(f"{item.get_id()} - {item.get_environment()} - {item.get_value()}")
-        if item.get_type() == type.ARRAY:
-            #print(item.get_value())
-            table.insert('', "end", text=item.get_id(), values=(item.get_type(), item.get_value().get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
-        else:
-            table.insert('', "end", text=item.get_id(), values=("VARIABLE", item.get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
- 
-    txtOutput.insert('1.0', ast.get_console())
-    txtOutput.see('end')
-    txtOutput.config(state='disable')
-    errors = ast.get_errors()
-    lbl_error_count.config(text = len(errors))
-
+    flag_debugg = False
 
 def graph_tree(ast):
     
@@ -969,18 +864,18 @@ lbl_debug.grid(row = 4, column = 0, pady = 20, padx = 0)
 lbl_debug.bind("<Button>", debugge_start)
 
 
-img_next = PhotoImage(file = "./img/next.png")
-img_next.configure(width= 40)
-lbl_next = Label(myFrame3, image=img_next, bg="#090b1f", width = 25)
-#lbl_next.grid(row = 6, column = 0, pady = (40, 0), padx = 0)
-lbl_next.bind("<Button>", debugge)
-lbl_next.grid_forget()
+# img_next = PhotoImage(file = "./img/next.png")
+# img_next.configure(width= 40)
+# lbl_next = Label(myFrame3, image=img_next, bg="#090b1f", width = 25)
+# #lbl_next.grid(row = 6, column = 0, pady = (40, 0), padx = 0)
+# lbl_next.bind("<Button>", debugge)
+# lbl_next.grid_forget()
 
-img_stop = PhotoImage(file="./img/stop.png")
-img_stop.configure(width=40)
-lbl_stop = Label(myFrame3, image=img_stop, bg="#090b1f", width = 25)
-lbl_stop.bind("<Button>", stop)
-lbl_stop.grid_forget()
+# img_stop = PhotoImage(file="./img/stop.png")
+# img_stop.configure(width=40)
+# lbl_stop = Label(myFrame3, image=img_stop, bg="#090b1f", width = 25)
+# lbl_stop.bind("<Button>", stop)
+# lbl_stop.grid_forget()
 
 
 ##-------Button Report------##
@@ -1154,7 +1049,11 @@ table.heading("6", text = "Column")
 #table.grid(row = 0, column = 0, sticky= "ew", pady = (0, 10))
 table.pack(side="left")
 
-#table.insert('', END, text="hola", values=("int", "int", "GlobalGlobalGlobal", "34", "1", "2"))
+# table.insert('', END, text="hola", values=("int", "int", "GlobalGlobalGlobal", "34", "1", "2"))
+# datos = table.get_children()[0]
+# valor = table.item(datos)
+# value = table.get_children().__getitem__(0)
+# print(value)
 
 
 scroll_table_h.configure(command=table.xview)

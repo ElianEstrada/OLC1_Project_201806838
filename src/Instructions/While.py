@@ -3,10 +3,14 @@ from src.Instructions.Continue import Continue
 from src.Abstract.Instruction import Instruction
 from src.Instructions.Break import Break
 from src.Instructions.Return import Return
+from src.Instructions.Print import Print
+from src.Instructions.Assignment import Assignment
+from src.Instructions.Declaration import Declaration
 from src.SymbolTable.SymbolTable import SymbolTable
 from src.SymbolTable.Errors import Error
 from src.SymbolTable.Type import type
 
+import tkinter.messagebox as msg
 
 class While(Instruction):
 
@@ -40,6 +44,7 @@ class While(Instruction):
                         if isinstance(instruction, Error):
                             tree.get_errors().append(instruction)
                             tree.update_console(instruction)
+                            continue
 
                         if isinstance(instruction, Continue):
                             break
@@ -49,6 +54,38 @@ class While(Instruction):
 
                         if isinstance(instruction, Return):
                             return instruction
+
+                        if tree.get_debugg():
+
+                            tree.get_input_text().tag_add("debugg", f"{item.row}.0", f"{item.row + 1}.0")
+                            tree.get_input_text().see(f"{item.row}.0")
+                            tree.get_table().delete(*tree.get_table().get_children())
+                            if isinstance(item, Print):
+                                tree.get_output_text().delete("1.0", "end")
+                                tree.get_output_text().insert('insert', tree.get_console())
+                                tree.get_output_text().see('end')
+                            count = 0
+                            for variable in new_table.get_variables():
+                                if variable.get_type() == type.ARRAY:
+                                    tree.get_table().insert('', "end", text=variable.get_id(), values=(variable.get_type().name, variable.get_value().get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                                else:
+                                    tree.get_table().insert('', "end", text=variable.get_id(), values=("VARIABLE", variable.get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                            if isinstance(item, Assignment):
+                                while count < len(tree.get_table().get_children()) - 1:
+                                    date = tree.get_table().item(tree.get_table().get_children()[count])
+                                    if date['text'] == item.get_id():
+                                        break
+                                    count += 1
+                            if isinstance(item, Declaration):
+                                count = -1
+                            if len(tree.get_table().get_children()) != 0:
+                                tree.get_table().see(tree.get_table().get_children()[count])
+                            var = msg.askyesno(title="Debugger", message="Continue?...")
+                            tree.get_input_text().tag_remove("debugg", f"{item.row}.0", f"{item.row + 1}.0")
+                            if var:
+                                continue
+                            else:
+                                tree.set_debugg(False)
                 else: 
                     break
             else: 

@@ -142,6 +142,7 @@ from src.Expression.Array import Array
 from src.Expression.Access_Array import Access_Array
 from src.SymbolTable.Errors import Error
 from src.Instructions.Break import Break
+from src.Instructions.Print import Print
 from src.Instructions.Continue import Continue
 from src.Instructions.Function import Function
 from src.Instructions.Return import Return
@@ -192,22 +193,29 @@ def create_native_functions(ast):
     type_of = Type_Of('typeof', [{'type': type.NULL, 'name': 'type_of##param1'}], [], -1, -1)
     ast.add_function(type_of)
 
+
+flag_debugg = False
+
+def debugge_start(e = None):
+    global flag_debugg
+    flag_debugg = True
+    analize()
+
+import tkinter.messagebox as msg
+
 ###---------Analize function---------###
 def analize(e = None): 
     global fileInput
     global string
     global pathFileJs
     global errors
+    global flag_debugg
 
     errors = []
     txtOutput.config(state='normal')
     txtOutput.delete("1.0", "end")
 
-    for item in table.get_children():
-        print(table.item(item))
-
     table.delete(*table.get_children())
-
 
 
     text = txtInput.get("1.0", "end")
@@ -227,7 +235,9 @@ def analize(e = None):
     ts_global.set_widget(table)
     ast.set_global_table(ts_global)
     ast.set_output_text(txtOutput)
-    #ast.set_table(table)
+    ast.set_input_text(txtInput)
+    ast.set_debugg(flag_debugg)
+    ast.set_table(table)
 
     create_native_functions(ast)
 
@@ -248,18 +258,54 @@ def analize(e = None):
             if isinstance(value, Error):
                 ast.get_errors().append(value)
                 ast.update_console(value)
+                continue
             if isinstance(instruction, Break):
                 error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
                 ast.get_errors().append(error)
                 ast.update_console(error)
+                continue
             if isinstance(instruction, Continue): 
                 error = Error("Semantic", "The instruction Continue is loop instruction")
                 ast.get_errors().append(error)
                 ast.update_console(error)
+                continue
             if isinstance(instruction, Return):
                 error = Error("Semantic", "The Instruction Return is loop instruction", instruction.row, instruction.column)
                 ast.get_errors().append(error)
                 ast.update_console(error)
+                continue
+
+            if ast.get_debugg():
+
+                ast.get_input_text().tag_add("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                ast.get_input_text().see(f"{instruction.row}.0")
+                ast.get_table().delete(*ast.get_table().get_children())
+                if isinstance(instruction, Print):
+                    ast.get_output_text().delete("1.0", "end")
+                    ast.get_output_text().insert('insert', ast.get_console())
+                    ast.get_output_text().see('end')
+                count = 0
+                for variable in ts_global.get_variables():
+                    if variable.get_type() == type.ARRAY:
+                        ast.get_table().insert('', "end", text=variable.get_id(), values=(variable.get_type().name, variable.get_value().get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                    else:
+                        ast.get_table().insert('', "end", text=variable.get_id(), values=("VARIABLE", variable.get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                if isinstance(instruction, Assignment):
+                    while count < len(ast.get_table().get_children()) - 1:
+                        date = ast.get_table().item(ast.get_table().get_children()[count])
+                        if date['text'] == instruction.get_id():
+                            break
+                        count += 1
+                if isinstance(instruction, Declaration):
+                    count = -1
+                if len(ast.get_table().get_children()) != 0:
+                    ast.get_table().see(ast.get_table().get_children()[count])
+                var = msg.askyesno(title="Debugger", message="Continue?...")
+                ast.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                if var:
+                    continue
+                else:
+                    ast.set_debugg(False)
 
     count = 0
     ##-----------Second Run for count main function-----------##
@@ -282,18 +328,54 @@ def analize(e = None):
                 if isinstance(value, Error):
                     ast.get_errors().append(value)
                     ast.update_console(value)
+                    continue
                 if isinstance(instruction, Break):
                     error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
                     ast.get_errors().append(error)
                     ast.update_console(error)
+                    continue
                 if isinstance(instruction, Continue): 
                     error = Error("Semantic", "The instruction Continue is loop instruction")
                     ast.get_errors().append(error)
                     ast.update_console(error)
+                    continue
                 if isinstance(instruction, Return):
                     error = Error("Semantic", "The Instruction Return is loop instruction", instruction.row, instruction.column)
                     ast.get_errors().append(error)
                     ast.update_console(error)
+                    continue
+
+                if ast.get_debugg():
+
+                    ast.get_input_text().tag_add("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                    ast.get_input_text().see(f"{instruction.row}.0")
+                    ast.get_table().delete(*ast.get_table().get_children())
+                    if isinstance(instruction, Print):
+                        ast.get_output_text().delete("1.0", "end")
+                        ast.get_output_text().insert('insert', ast.get_console())
+                        ast.get_output_text().see('end')
+                    count = 0
+                    for variable in ts_global.get_variables():
+                        if variable.get_type() == type.ARRAY:
+                            ast.get_table().insert('', "end", text=variable.get_id(), values=(variable.get_type().name, variable.get_value().get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                        else:
+                            ast.get_table().insert('', "end", text=variable.get_id(), values=("VARIABLE", variable.get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                    if isinstance(instruction, Assignment):
+                        while count < len(ast.get_table().get_children()) - 1:
+                            date = ast.get_table().item(ast.get_table().get_children()[count])
+                            if date['text'] == instruction.get_id():
+                                break
+                            count += 1
+                    if isinstance(instruction, Declaration):
+                        count = -1
+                    if len(ast.get_table().get_children()) != 0:
+                        ast.get_table().see(ast.get_table().get_children()[count])
+                    var = msg.askyesno(title="Debugger", message="Continue?...")
+                    ast.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                    if var:
+                        continue
+                    else:
+                        ast.set_debugg(False)
 
     ##-----------Fourth Run for instruction out main-----------##
     for instruction in ast.get_instructions():
@@ -303,6 +385,7 @@ def analize(e = None):
             ast.update_console(error)
 
     graph_tree(ast)
+    table.delete(*table.get_children())
 
     #ast.get_symbol_table()
     #print(ts_global.get_variables())
@@ -317,21 +400,28 @@ def analize(e = None):
         
         table.insert('', 'end', text=item.get_name(), values=(declaration_type, "VOID" if item.get_type() == type.NULL else item.get_type().name, "-", "-", item.row, item.column))
     
+    # symbol_table_values = []
+    # for item in ts_global.get_variables():
+    #     if item not in symbol_table_values:
+    #         symbol_table_values.append(item)
+
     for item in ts_global.get_variables():
         #print(f"{item.get_id()} - {item.get_environment()} - {item.get_value()}")
         if item.get_type() == type.ARRAY:
-            print(item.get_value())
-            table.insert('', "end", text=item.get_id(), values=(item.get_type(), item.get_value().get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
+            #print(item.get_value())
+            table.insert('', "end", text=item.get_id(), values=(item.get_type().name, item.get_value().get_type().name, item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
         else:
-            table.insert('', "end", text=item.get_id(), values=("VARIABLE", item.get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
+            table.insert('', "end", text=item.get_id(), values=("VARIABLE", item.get_type().name, item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
  
+    txtOutput.delete('1.0', 'end')
     txtOutput.insert('1.0', ast.get_console())
     txtOutput.see('end')
     txtOutput.config(state='disable')
     errors = ast.get_errors()
     lbl_error_count.config(text = len(errors))
-    print(ast.get_console())
+    #print(ast.get_console())
 
+    flag_debugg = False
 
 def graph_tree(ast):
     
@@ -350,14 +440,14 @@ def graph_tree(ast):
     with open("report/ast.dot", "w+") as fileSave: 
             fileSave.write(graph)
 
-    # if os.name == 'nt':
-    #     subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
-    #     dir_name = os.path.dirname(__file__)
-    #     os.startfile(dir_name + '\\report\\ast.svg')
-    # else: 
-    #     dir_name = os.path.dirname(__file__)
-    #     subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
-    #     subprocess.call(["xdg-open", "report/ast.svg"])
+    if os.name == 'nt':
+        subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
+        dir_name = os.path.dirname(__file__)
+        os.startfile(dir_name + '\\report\\ast.svg')
+    else: 
+        dir_name = os.path.dirname(__file__)
+        subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
+        subprocess.call(["xdg-open", "report/ast.svg"])
         #subprocess.call(["xdg-open", "report/errors.html"])
 
 
@@ -845,7 +935,22 @@ img_debug.configure(width = 40)
 lbl_debug = Label(myFrame3, image=img_debug, bg="#090b1f", width=25)
 lbl_debug.config(cursor = "hand1")
 lbl_debug.grid(row = 4, column = 0, pady = 20, padx = 0)
-#lbl_debug.bind("<Button>", analize)
+lbl_debug.bind("<Button>", debugge_start)
+
+
+# img_next = PhotoImage(file = "./img/next.png")
+# img_next.configure(width= 40)
+# lbl_next = Label(myFrame3, image=img_next, bg="#090b1f", width = 25)
+# #lbl_next.grid(row = 6, column = 0, pady = (40, 0), padx = 0)
+# lbl_next.bind("<Button>", debugge)
+# lbl_next.grid_forget()
+
+# img_stop = PhotoImage(file="./img/stop.png")
+# img_stop.configure(width=40)
+# lbl_stop = Label(myFrame3, image=img_stop, bg="#090b1f", width = 25)
+# lbl_stop.bind("<Button>", stop)
+# lbl_stop.grid_forget()
+
 
 ##-------Button Report------##
 img_report = PhotoImage(file = "./img/report_error.png")
@@ -944,6 +1049,7 @@ txtInput.tag_config('string', foreground='#ec9a32')
 txtInput.tag_config('comment', foreground='#858585')
 txtInput.tag_config('other', foreground='#d8d8ce')
 txtInput.tag_config('error', foreground='red')
+txtInput.tag_config('debugg', background="#858585")
 
 
 ##-------Scroll for Input Vertical--------##
@@ -999,9 +1105,13 @@ scroll_table_h.config(width=12)
 ##-------Table of Symbol Table--------##
 table = ttk.Treeview(myFrame7, columns=("1", "2", "3", "4", "5", "6"))
 
-table.column('3', width="356")
-table.column('5', width="80")
-table.column('6', width="80")
+table.column('1', anchor="center")
+table.column('2', anchor="center")
+table.column('3', width="356", anchor="center")
+table.column('4', anchor="center")
+table.column('5', width="80", anchor="center")
+table.column('6', width="80", anchor="center")
+
 
 table.heading("#0", text = "Identifier")
 table.heading("1", text = "Type")
@@ -1013,7 +1123,11 @@ table.heading("6", text = "Column")
 #table.grid(row = 0, column = 0, sticky= "ew", pady = (0, 10))
 table.pack(side="left")
 
-table.insert('', END, text="hola", values=("int", "int", "GlobalGlobalGlobal", "34", "1", "2"))
+# table.insert('', END, text="hola", values=("int", "int", "GlobalGlobalGlobal", "34", "1", "2"))
+# datos = table.get_children()[0]
+# valor = table.item(datos)
+# value = table.get_children().__getitem__(0)
+# print(value)
 
 
 scroll_table_h.configure(command=table.xview)

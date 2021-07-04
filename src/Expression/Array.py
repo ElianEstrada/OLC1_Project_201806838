@@ -86,7 +86,7 @@ class Array(Instruction):
 
             #    list_values.append(primitive)
 
-            self.__list_value = self.__list_expression
+            self.__list_value = self.get_values(self.__list_expression, tree, table)
             #self.__list_table = self.table_value(self.__list_expression, tree, table)
 
             symbol = Symbol(self.__name, type.ARRAY, self.row, self.column, self)
@@ -203,7 +203,22 @@ class Array(Instruction):
         node.add_childs_node(expressions)
         return node
 
+    def get_values(self, list_values, tree, table):
 
+        expressions = []
+
+        if isinstance(list_values, list):
+
+            for item in list_values:
+                expressions.append(self.get_values(item, tree, table))
+
+        else: 
+            value = list_values.interpret(tree, table)
+            primitive = Primitive(list_values.get_type(), value, self.row, self.column)
+            return primitive
+            #return str(list_values)
+
+        return expressions
 
     def get_type(self):
         return self.__type_init

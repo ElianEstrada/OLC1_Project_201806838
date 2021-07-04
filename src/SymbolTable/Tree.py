@@ -8,6 +8,8 @@ class Tree:
         self.__symbol_table = []
         self.__global_table = None
         self.__output_text = None
+        self.__input_text = None
+        self.__debugg = False
         self.__table = None
         self.__dot = ""
         self.__count = 0
@@ -66,11 +68,23 @@ class Tree:
     def get_output_text(self):
         return self.__output_text
 
+    def set_input_text(self, input_text):
+        self.__input_text = input_text
+    
+    def get_input_text(self):
+        return self.__input_text
+
     def set_table(self, table):
         self.__table = table
 
     def get_table(self):
         return self.__table
+
+    def set_debugg(self, debugg):
+        self.__debugg = debugg
+    
+    def get_debugg(self):
+        return self.__debugg
 
     def get_dot(self, root):
         self.__dot = ""

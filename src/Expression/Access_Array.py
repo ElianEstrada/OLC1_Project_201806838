@@ -168,9 +168,10 @@ class Access_Array(Instruction):
     def lexico_map(self, positions, max_index, tree, table):
 
         if [] not in (positions, max_index):
-            return positions[0] * max_index[0].interpret(tree, table) + self.lexico_map(positions[1:], max_index[1:], tree, table)
+            #return positions[0] * max_index[0].interpret(tree, table) + self.lexico_map(positions[1:], max_index[1:], tree, table)
+            return self.lexico_map(positions[:-1], max_index[:-1], tree, table) * max_index[-1].interpret(tree, table) + positions[-1]
         
-        return 0
+        return positions[0]
 
     def value_position(self, positions, list_values, tree, table):
         

@@ -19,10 +19,10 @@ class Read(Instruction):
     def interpret(self, tree, table):
 
         tree.get_output_text().insert('insert', tree.get_console())
-        tree.get_output_text().see('end');
+        tree.get_output_text().see('end')
         #tree.set_console("")
 
-        answer = simpledialog.askstring("Input", "Ingrese un valor")
+        answer = simpledialog.askstring("Input", "Enter a value")
 
         if answer == None:
             answer = 'null'

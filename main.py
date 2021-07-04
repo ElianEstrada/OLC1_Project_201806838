@@ -366,14 +366,14 @@ def graph_tree(ast):
     with open("report/ast.dot", "w+") as fileSave: 
             fileSave.write(graph)
 
-    # if os.name == 'nt':
-    #     subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
-    #     dir_name = os.path.dirname(__file__)
-    #     os.startfile(dir_name + '\\report\\ast.svg')
-    # else: 
-    #     dir_name = os.path.dirname(__file__)
-    #     subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
-    #     subprocess.call(["xdg-open", "report/ast.svg"])
+    if os.name == 'nt':
+        subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
+        dir_name = os.path.dirname(__file__)
+        os.startfile(dir_name + '\\report\\ast.svg')
+    else: 
+        dir_name = os.path.dirname(__file__)
+        subprocess.call(["dot", "-T", "svg", "-o", "report/ast.svg", "report/ast.dot"])
+        subprocess.call(["xdg-open", "report/ast.svg"])
         #subprocess.call(["xdg-open", "report/errors.html"])
 
 

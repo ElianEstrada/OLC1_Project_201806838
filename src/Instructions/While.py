@@ -47,12 +47,42 @@ class While(Instruction):
                             continue
 
                         if isinstance(instruction, Continue):
+                            if tree.get_debugg():
+                                tree.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                                tree.get_input_text().tag_add("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                                tree.get_input_text().see(f"{instruction.row}.0")
+                                var = msg.askyesno(title="Debugger", message="Continue?...")
+                                tree.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                                if var:
+                                    pass
+                                else:
+                                    tree.set_debugg(False)
                             break
 
                         if isinstance(instruction, Break):
+                            if tree.get_debugg():
+                                tree.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                                tree.get_input_text().tag_add("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                                tree.get_input_text().see(f"{instruction.row}.0")
+                                var = msg.askyesno(title="Debugger", message="Continue?...")
+                                tree.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                                if var:
+                                    pass
+                                else:
+                                    tree.set_debugg(False)
                             return None
 
                         if isinstance(instruction, Return):
+                            if tree.get_debugg():
+                                tree.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                                tree.get_input_text().tag_add("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                                tree.get_input_text().see(f"{instruction.row}.0")
+                                var = msg.askyesno(title="Debugger", message="Continue?...")
+                                tree.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                                if var:
+                                    pass
+                                else:
+                                    tree.set_debugg(False)
                             return instruction
 
                         if tree.get_debugg():

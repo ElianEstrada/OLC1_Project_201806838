@@ -142,6 +142,7 @@ from src.Expression.Array import Array
 from src.Expression.Access_Array import Access_Array
 from src.SymbolTable.Errors import Error
 from src.Instructions.Break import Break
+from src.Instructions.Print import Print
 from src.Instructions.Continue import Continue
 from src.Instructions.Function import Function
 from src.Instructions.Return import Return
@@ -200,6 +201,7 @@ def debugge_start(e = None):
     flag_debugg = True
     analize()
 
+import tkinter.messagebox as msg
 
 ###---------Analize function---------###
 def analize(e = None): 
@@ -256,18 +258,54 @@ def analize(e = None):
             if isinstance(value, Error):
                 ast.get_errors().append(value)
                 ast.update_console(value)
+                continue
             if isinstance(instruction, Break):
                 error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
                 ast.get_errors().append(error)
                 ast.update_console(error)
+                continue
             if isinstance(instruction, Continue): 
                 error = Error("Semantic", "The instruction Continue is loop instruction")
                 ast.get_errors().append(error)
                 ast.update_console(error)
+                continue
             if isinstance(instruction, Return):
                 error = Error("Semantic", "The Instruction Return is loop instruction", instruction.row, instruction.column)
                 ast.get_errors().append(error)
                 ast.update_console(error)
+                continue
+
+            if ast.get_debugg():
+
+                ast.get_input_text().tag_add("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                ast.get_input_text().see(f"{instruction.row}.0")
+                ast.get_table().delete(*ast.get_table().get_children())
+                if isinstance(instruction, Print):
+                    ast.get_output_text().delete("1.0", "end")
+                    ast.get_output_text().insert('insert', ast.get_console())
+                    ast.get_output_text().see('end')
+                count = 0
+                for variable in ts_global.get_variables():
+                    if variable.get_type() == type.ARRAY:
+                        ast.get_table().insert('', "end", text=variable.get_id(), values=(variable.get_type().name, variable.get_value().get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                    else:
+                        ast.get_table().insert('', "end", text=variable.get_id(), values=("VARIABLE", variable.get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                if isinstance(instruction, Assignment):
+                    while count < len(ast.get_table().get_children()) - 1:
+                        date = ast.get_table().item(ast.get_table().get_children()[count])
+                        if date['text'] == instruction.get_id():
+                            break
+                        count += 1
+                if isinstance(instruction, Declaration):
+                    count = -1
+                if len(ast.get_table().get_children()) != 0:
+                    ast.get_table().see(ast.get_table().get_children()[count])
+                var = msg.askyesno(title="Debugger", message="Continue?...")
+                ast.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                if var:
+                    continue
+                else:
+                    ast.set_debugg(False)
 
     count = 0
     ##-----------Second Run for count main function-----------##
@@ -290,18 +328,54 @@ def analize(e = None):
                 if isinstance(value, Error):
                     ast.get_errors().append(value)
                     ast.update_console(value)
+                    continue
                 if isinstance(instruction, Break):
                     error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", instruction.row, instruction.column)
                     ast.get_errors().append(error)
                     ast.update_console(error)
+                    continue
                 if isinstance(instruction, Continue): 
                     error = Error("Semantic", "The instruction Continue is loop instruction")
                     ast.get_errors().append(error)
                     ast.update_console(error)
+                    continue
                 if isinstance(instruction, Return):
                     error = Error("Semantic", "The Instruction Return is loop instruction", instruction.row, instruction.column)
                     ast.get_errors().append(error)
                     ast.update_console(error)
+                    continue
+
+                if ast.get_debugg():
+
+                    ast.get_input_text().tag_add("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                    ast.get_input_text().see(f"{instruction.row}.0")
+                    ast.get_table().delete(*ast.get_table().get_children())
+                    if isinstance(instruction, Print):
+                        ast.get_output_text().delete("1.0", "end")
+                        ast.get_output_text().insert('insert', ast.get_console())
+                        ast.get_output_text().see('end')
+                    count = 0
+                    for variable in ts_global.get_variables():
+                        if variable.get_type() == type.ARRAY:
+                            ast.get_table().insert('', "end", text=variable.get_id(), values=(variable.get_type().name, variable.get_value().get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                        else:
+                            ast.get_table().insert('', "end", text=variable.get_id(), values=("VARIABLE", variable.get_type().name, variable.get_environment(), variable.get_value(), variable.get_row(), variable.get_column()))
+                    if isinstance(instruction, Assignment):
+                        while count < len(ast.get_table().get_children()) - 1:
+                            date = ast.get_table().item(ast.get_table().get_children()[count])
+                            if date['text'] == instruction.get_id():
+                                break
+                            count += 1
+                    if isinstance(instruction, Declaration):
+                        count = -1
+                    if len(ast.get_table().get_children()) != 0:
+                        ast.get_table().see(ast.get_table().get_children()[count])
+                    var = msg.askyesno(title="Debugger", message="Continue?...")
+                    ast.get_input_text().tag_remove("debugg", f"{instruction.row}.0", f"{instruction.row + 1}.0")
+                    if var:
+                        continue
+                    else:
+                        ast.set_debugg(False)
 
     ##-----------Fourth Run for instruction out main-----------##
     for instruction in ast.get_instructions():

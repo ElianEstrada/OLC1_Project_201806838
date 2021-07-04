@@ -23,7 +23,7 @@ class To_Lower(Function):
         if symbol.get_type() != type.STRING:
             return Error("Semantic", f"The type: {symbol.get_type().name} not valid like param for toLower function", self.row, self.column)
         
-        self.__type = type.STRING
+        self.type = type.STRING
         return symbol.get_value().lower()
 
     def get_type(self):

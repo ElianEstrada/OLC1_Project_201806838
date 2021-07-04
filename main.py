@@ -203,11 +203,7 @@ def analize(e = None):
     txtOutput.config(state='normal')
     txtOutput.delete("1.0", "end")
 
-    for item in table.get_children():
-        print(table.item(item))
-
     table.delete(*table.get_children())
-
 
 
     text = txtInput.get("1.0", "end")
@@ -227,6 +223,7 @@ def analize(e = None):
     ts_global.set_widget(table)
     ast.set_global_table(ts_global)
     ast.set_output_text(txtOutput)
+    ast.set_debugg(False)
     #ast.set_table(table)
 
     create_native_functions(ast)
@@ -317,10 +314,135 @@ def analize(e = None):
         
         table.insert('', 'end', text=item.get_name(), values=(declaration_type, "VOID" if item.get_type() == type.NULL else item.get_type().name, "-", "-", item.row, item.column))
     
+    # symbol_table_values = []
+
+    # for item in ts_global.get_variables():
+    #     if item not in symbol_table_values:
+    #         symbol_table_values.append(item)
+
     for item in ts_global.get_variables():
         #print(f"{item.get_id()} - {item.get_environment()} - {item.get_value()}")
         if item.get_type() == type.ARRAY:
-            print(item.get_value())
+            #print(item.get_value())
+            table.insert('', "end", text=item.get_id(), values=(item.get_type().name, item.get_value().get_type().name, item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
+        else:
+            table.insert('', "end", text=item.get_id(), values=("VARIABLE", item.get_type().name, item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
+ 
+    txtOutput.insert('1.0', ast.get_console())
+    txtOutput.see('end')
+    txtOutput.config(state='disable')
+    errors = ast.get_errors()
+    lbl_error_count.config(text = len(errors))
+    #print(ast.get_console())
+
+
+count_debugg = 0
+
+def debugge_start(e = None):
+    lbl_next.grid(pady = (20, 0), padx = 0)
+    lbl_stop.grid(pady = (20, 0), padx = 0)
+
+def stop(e = None):
+    global count_debugg
+    lbl_next.grid_forget()
+    lbl_stop.grid_forget()
+    count_debugg = 0
+    #txtInput.
+
+def debugge(e = None):
+    global count_debugg
+    
+    
+    debugge_count(count_debugg)
+    count_debugg += 1 
+    
+import tkinter.messagebox as msg
+def debugge_count(count):
+
+    #var = msg.askyesno(title="Debugger", message="Continue?...")
+
+    #print(var)
+
+    errors = []
+    txtOutput.config(state='normal')
+    txtOutput.delete("1.0", "end")
+
+    table.delete(*table.get_children())
+
+
+    text = txtInput.get("1.0", "end")
+    txtInput.delete("1.0", "end")
+    for item in paint_words(text[0:len(text)-1]):
+        txtInput.insert(INSERT, item[1], item[0])
+
+    instructions = parser(txtInput.get('1.0', 'end'))
+    if instructions == None:
+        value = messagebox.showerror("Instructions", "No Instructions for interpret")
+        return
+    #print(instructions)
+
+    
+    ast = Tree(instructions)
+    ts_global = SymbolTable()
+    ts_global.set_widget(table)
+    ast.set_global_table(ts_global)
+    ast.set_output_text(txtOutput)
+    #ast.set_table(table)
+
+    create_native_functions(ast)
+
+    for error in get_errors():
+        ast.get_errors().append(error)
+        ast.update_console(error)
+
+
+    if len(ts_global.get_variables()) > 0:
+        ts_global.get_variables().clear()
+
+    
+
+    ##-----------First Run for declarations and assignment-----------##
+    if count < len(ast.get_instructions()):
+        for i in range(count+1):
+            if isinstance(ast.get_instructions()[i], Function):
+                ast.add_function(ast.get_instructions()[i])
+            if isinstance(ast.get_instructions()[i], (Declaration, Assignment, Array, Access_Array)):
+                value = ast.get_instructions()[i].interpret(ast, ts_global)
+                if isinstance(value, Error):
+                    ast.get_errors().append(value)
+                    ast.update_console(value)
+                if isinstance(ast.get_instructions()[i], Break):
+                    error = Error("Semantic", "The Instruction BREAK is loop or switch instruction", ast.get_instructions()[i].row, ast.get_instructions()[i].column)
+                    ast.get_errors().append(error)
+                    ast.update_console(error)
+                if isinstance(ast.get_instructions()[i], Continue): 
+                    error = Error("Semantic", "The instruction Continue is loop instruction")
+                    ast.get_errors().append(error)
+                    ast.update_console(error)
+                if isinstance(ast.get_instructions()[i], Return):
+                    error = Error("Semantic", "The Instruction Return is loop instruction", ast.get_instructions()[i].row, ast.get_instructions()[i].column)
+                    ast.get_errors().append(error)
+                    ast.update_console(error)
+    else: 
+        return
+    row_text = ast.get_instructions()[count].row
+    txtInput.tag_add("debugg", f"{row_text}.0", f"{row_text + 1}.0")
+
+    for item in ast.get_function_all():
+        if item.get_name() in ('toupper', 'tolower', 'length', 'round', 'truncate', 'typeof'):
+            continue
+        
+        if item.get_type() == type.NULL:
+            declaration_type = "Method"
+        else:
+            declaration_type = "Function"
+        
+        table.insert('', 'end', text=item.get_name(), values=(declaration_type, "VOID" if item.get_type() == type.NULL else item.get_type().name, "-", "-", item.row, item.column))
+    
+    for item in ts_global.get_variables():
+        #print(f"{item.get_id()} - {item.get_environment()} - {item.get_value()}")
+        if item.get_type() == type.ARRAY:
+            #print(item.get_value())
             table.insert('', "end", text=item.get_id(), values=(item.get_type(), item.get_value().get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
         else:
             table.insert('', "end", text=item.get_id(), values=("VARIABLE", item.get_type(), item.get_environment(), item.get_value(), item.get_row(), item.get_column()))
@@ -330,7 +452,6 @@ def analize(e = None):
     txtOutput.config(state='disable')
     errors = ast.get_errors()
     lbl_error_count.config(text = len(errors))
-    print(ast.get_console())
 
 
 def graph_tree(ast):
@@ -845,7 +966,22 @@ img_debug.configure(width = 40)
 lbl_debug = Label(myFrame3, image=img_debug, bg="#090b1f", width=25)
 lbl_debug.config(cursor = "hand1")
 lbl_debug.grid(row = 4, column = 0, pady = 20, padx = 0)
-#lbl_debug.bind("<Button>", analize)
+lbl_debug.bind("<Button>", debugge_start)
+
+
+img_next = PhotoImage(file = "./img/next.png")
+img_next.configure(width= 40)
+lbl_next = Label(myFrame3, image=img_next, bg="#090b1f", width = 25)
+#lbl_next.grid(row = 6, column = 0, pady = (40, 0), padx = 0)
+lbl_next.bind("<Button>", debugge)
+lbl_next.grid_forget()
+
+img_stop = PhotoImage(file="./img/stop.png")
+img_stop.configure(width=40)
+lbl_stop = Label(myFrame3, image=img_stop, bg="#090b1f", width = 25)
+lbl_stop.bind("<Button>", stop)
+lbl_stop.grid_forget()
+
 
 ##-------Button Report------##
 img_report = PhotoImage(file = "./img/report_error.png")
@@ -944,6 +1080,7 @@ txtInput.tag_config('string', foreground='#ec9a32')
 txtInput.tag_config('comment', foreground='#858585')
 txtInput.tag_config('other', foreground='#d8d8ce')
 txtInput.tag_config('error', foreground='red')
+txtInput.tag_config('debugg', background="#858585")
 
 
 ##-------Scroll for Input Vertical--------##
@@ -999,9 +1136,13 @@ scroll_table_h.config(width=12)
 ##-------Table of Symbol Table--------##
 table = ttk.Treeview(myFrame7, columns=("1", "2", "3", "4", "5", "6"))
 
-table.column('3', width="356")
-table.column('5', width="80")
-table.column('6', width="80")
+table.column('1', anchor="center")
+table.column('2', anchor="center")
+table.column('3', width="356", anchor="center")
+table.column('4', anchor="center")
+table.column('5', width="80", anchor="center")
+table.column('6', width="80", anchor="center")
+
 
 table.heading("#0", text = "Identifier")
 table.heading("1", text = "Type")
@@ -1013,7 +1154,7 @@ table.heading("6", text = "Column")
 #table.grid(row = 0, column = 0, sticky= "ew", pady = (0, 10))
 table.pack(side="left")
 
-table.insert('', END, text="hola", values=("int", "int", "GlobalGlobalGlobal", "34", "1", "2"))
+#table.insert('', END, text="hola", values=("int", "int", "GlobalGlobalGlobal", "34", "1", "2"))
 
 
 scroll_table_h.configure(command=table.xview)

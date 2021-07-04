@@ -38,7 +38,7 @@ class Assignment(Instruction):
 
 
         new_symbol = Symbol(self.__id, self.__expression.get_type(), self.row, self.column, value)
-
+        #new_symbol.set_environment(table.get_name())
         result = table.update_table(new_symbol)
 
         if isinstance(result, Error):

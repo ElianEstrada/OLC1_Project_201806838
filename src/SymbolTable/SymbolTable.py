@@ -29,14 +29,16 @@ class SymbolTable:
         #         print(symbol.get_value().get_list_value())
         #         self.__widget.insert('', "end", text=symbol.get_id().lower(), values=(symbol.get_type().name, symbol.get_value().get_type(), self.__name, str(symbol.get_value().get_list_value()), symbol.get_row(), symbol.get_column()))
         flag = True
-        for item in variables:
-            if item.get_id().lower() == symbol.get_id().lower() and item.get_environment() != self.__name:
+        for i in range(len(variables)):
+            if variables[i].get_id().lower() == symbol.get_id().lower() and variables[i].get_environment() != self.__name:
                 flag = True
-            elif item.get_id().lower() == symbol.get_id().lower():
+            elif variables[i].get_id().lower() == symbol.get_id().lower():
                 flag = False
+                variables[i] = symbol
 
         if flag: 
-            variables.append(symbol)
+            if symbol not in variables:
+                variables.append(symbol)
 
         #if not exist add to table
         symbol.set_environment(self.__name)
@@ -61,11 +63,21 @@ class SymbolTable:
                 if current_table.__table[symbol.get_id()].get_type() == symbol.get_type():    
                     current_table.__table[symbol.get_id()].set_value(symbol.get_value())
 
+                    # for item in variables:
+                    #     if item.get_id().lower() == symbol.get_id().lower() and current_table.__table[symbol.get_id()].get_environment() == current_table.get_name():
+                    #         item.set_value(symbol.get_value())
+                    #         item.set_type(symbol.get_type())
+
                     return None
 
                 elif current_table.__table[symbol.get_id()].get_type() == type.NULL or symbol.get_type() == type.NULL:
                     current_table.__table[symbol.get_id()].set_value(symbol.get_value())
                     current_table.__table[symbol.get_id()].set_type(symbol.get_type())
+
+                    # for item in variables:
+                    #     if item.get_id().lower() == symbol.get_id().lower() and current_table.__table[symbol.get_id()].get_environment() == current_table.get_name():
+                    #         item.set_value(symbol.get_value())
+                    #         item.set_type(symbol.get_type())
 
                     return None
 

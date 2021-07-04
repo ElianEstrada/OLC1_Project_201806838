@@ -21,7 +21,7 @@ class Function(Instruction):
     
     def interpret(self, tree, table):
 
-        new_table = SymbolTable(table)
+        new_table = SymbolTable(table, f"Function-{self.name}-{self.row}-{self.column}")
 
         for instruction in self.instructions:
             value = instruction.interpret(tree, new_table)
@@ -43,7 +43,6 @@ class Function(Instruction):
             if isinstance(value, Return):
                 self.type = value.get_type()
                 return value.get_result()
-            
         
         return None
 

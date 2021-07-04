@@ -7,6 +7,9 @@ from src.Instructions.Return import Return
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Type import type
 
+
+import tkinter.messagebox as msg
+
 class If(Instruction):
 
     def __init__(self, exp, instructions, else_instruction, else_if, row, column):
@@ -28,7 +31,7 @@ class If(Instruction):
             if flag == "true":
 
                 new_table = SymbolTable(table, f"If-{self.row}-{self.column}", table.get_widget())
-
+             
                 for item in self.__instructions:
                     instruction = item.interpret(tree, new_table)
 
@@ -44,6 +47,15 @@ class If(Instruction):
 
                     if isinstance(instruction, Return):
                         return instruction
+
+                    if tree.get_debugg():
+                        var = msg.askyesno(title="Debugger", message="Continue?...")
+                        if var:
+                            continue
+                        else:
+                            return
+                    #if debugg
+                        #MesseageBox si ok -> continue si no return
             else:
                 if self.__else_instructions != None:
 

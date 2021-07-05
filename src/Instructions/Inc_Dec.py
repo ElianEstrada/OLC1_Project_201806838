@@ -2,6 +2,7 @@ from src.Abstract.Ast_Node import Ast_Node
 from src.SymbolTable.Errors import Error
 from src.Abstract.Instruction import Instruction
 from src.Expression.Identifier import Identifier
+from src.Expression.Access_Array import Access_Array
 from src.SymbolTable.Symbol import Symbol
 from src.SymbolTable.Type import type, Arithmetic_Operator
 

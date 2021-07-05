@@ -56,8 +56,8 @@ class Call(Instruction):
                         if ob_function.get_params()[count]['sub_type'] != value_expression.get_type():
                             return Error("Semantic", f"The type: {value_expression.get_type().name} is different to param the type: {ob_function.get_params()[count]['sub_type']}", self.row, self.column)
 
-                        value_expression = copy.copy(value_expression)
-                        value_expression.set_list_value(copy.copy(value_expression.get_list_value()))
+                        # value_expression = copy.copy(value_expression)
+                        # value_expression.set_list_value(copy.copy(value_expression.get_list_value()))
 
                     symbol = Symbol(str(ob_function.get_params()[count]['name']).lower(), expression.get_type(), self.row, self.column, value_expression)
                     table_result = new_table.set_table(symbol)

@@ -1,11 +1,14 @@
-### **Universidad de San Carlos de Guatemala**
+> ### **Universidad de San Carlos de Guatemala**
+> 
+> #### **Facultad de ingeniería**
+> 
+> ##### Ingeniería en Ciencias y Sistemas
 
-#### **Facultad de ingeniería**
+# Gramática JPR
 
-##### Ingeniería en Ciencias y Sistemas
-
-######Elian Saúl Estrada Urbina
-######201806838
+> Elian Saúl Estrada Urbina
+> 
+> 201806838
 
 # **Especificación de la Gramática**
 
@@ -191,6 +194,25 @@ Símbolo de Inicio, es el símbolo no terminal que actúa como principal, es dec
 
 ```python
 S = {init}
+```
+
+# Precedencia
+
+En este caso debido a que estamos trabajando con una gramática ascendente (LALR) para ser precisos, la recursividad a la izquierda y la factorización no son ningún inconveniente, sin embargo, la ambigüedad si lo sigue siendo, y debido a que trabajamos con una gramática ambigua para la expression es necesario indicar precedencia:
+
+```python
+precedence = (
+    ('left', 'tk_or'),
+    ('left', 'tk_and'),
+    ('right', 'tk_unot'),
+    ('left', 'tk_equals', 'tk_different', 'tk_greater_equals', 'tk_greater', 'tk_less_equals', 'tk_less_equals'),
+    ('left', 'tk_add', 'tk_sub'),
+    ('left', 'tk_mult', 'tk_div', 'tk_module'),
+    ('left', 'tk_pow'),
+    ('right', 'tk_uminus'),
+    ('right', 'tk_fcast'),
+    ('left', 'tk_inc', 'tk_dec'),
+)
 ```
 
 ## **P:**
@@ -619,8 +641,6 @@ Reglas de Producción, son las especificaciones por las que una gramática se de
              | tk_id list_expression
   ```
 
-
-
 ## **Importación de PLY y puesta en marcha**
 
 #### **Importacion de lex**
@@ -643,9 +663,6 @@ Para esta ejecución se hizo un metodo que recibiría la entrada en string para 
 
 ```python
 def parser(str_input):
-    
-    return parser.parse(str_input)
 
+    return parser.parse(str_input)apa
 ```
-
-

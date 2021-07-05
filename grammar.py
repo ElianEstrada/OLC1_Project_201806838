@@ -12,18 +12,18 @@ reserved_words = {
     "for": "res_for",
     "continue": "res_continue",
     "return": "res_return",
-    "read": "res_read",
-    "tolower": "res_tolower",
-    "toupper": "res_toupper",
-    "length": "res_length",
-    "truncate": "res_truncate",
-    "round": "res_round",
-    "typeof": "res_typeof",
     "main": "res_main", 
     "true": "res_true",
     "false": "res_false", 
     "var": "res_var", 
-    "null": "res_null"
+    "null": "res_null", 
+    "int": "res_int",
+    "double": "res_double",
+    "char": "res_char",
+    "string": "res_string",
+    "boolean": "res_boolean",
+    "func": "res_func",
+    "read": "res_read"
 }
 
 tokens = [
@@ -122,7 +122,7 @@ def t_tk_id(t):
     return t
 
 def t_tk_string(t):
-    r'\"(\\\'|\\"|[^\'])*?\"'
+    r'\"(\\\'|\\"|\\\\|\\n|\\t|[^\'\\\"])*?\"'
     t.value = t.value[1:-1]
 
     t.value = t.value.replace('\\t', '\t')
@@ -194,6 +194,7 @@ precedence = (
     ('left', 'tk_mult', 'tk_div', 'tk_module'),
     ('left', 'tk_pow'),
     ('right', 'tk_uminus'),
+    ('right', 'tk_fcast'),
     ('left', 'tk_inc', 'tk_dec')
 )
 
@@ -202,11 +203,14 @@ precedence = (
 #Abstract
 #from src.Abstract.Instruction import Instruction
 from src.Instructions.Print import Print
+from src.Expression.Array import Array
+from src.Expression.Access_Array import Access_Array
 from src.Expression.Primitive import Primitive
 from src.Expression.Identifier import Identifier
 from src.Expression.Arithmetic import Arithmetic
 from src.Expression.Relational import Relational
 from src.Expression.Logic import Logic
+from src.Expression.Casting import Casting
 from src.SymbolTable.Type import type, Arithmetic_Operator, Relational_Operators, Logical_Operators
 from src.Instructions.Main import Main
 from src.Instructions.Declaration import Declaration
@@ -218,6 +222,11 @@ from src.Instructions.Case import Case
 from src.Instructions.While import While
 from src.Instructions.For import For
 from src.Instructions.Break import Break
+from src.Instructions.Continue import Continue
+from src.Instructions.Function import Function
+from src.Instructions.Call import Call
+from src.Expression.Read import Read
+from src.Instructions.Return import Return
 from src.SymbolTable.Errors import Error
 
 
@@ -248,12 +257,15 @@ def p_instructions_instruction(t):
 def p_instruction(t):
     '''instruction : statement ptcommaP
                    | assignment ptcommaP 
+                   | statement_array ptcommaP
+                   | assignment_array ptcommaP
                    | print ptcommaP
                    | inc_dec ptcommaP
                    | conditional
                    | loops
                    | transfer ptcommaP
-                   | functions'''
+                   | functions
+                   | call_function ptcommaP'''
     t[0] = t[1]
 
 def p_instruction_error(t):
@@ -281,11 +293,90 @@ def p_statementP(t):
     else:
         t[0] = t[1]
 
+
+###---------Production Statement_Array---------###
+
+def p_statement_array(t):
+    'statement_array : type list_brackets tk_id tk_assig res_new type list_expression'
+
+    t[0] = Array(t[1], t[2], t[3], t[6], t[7], [], t.lineno(3), find_column(input, t.slice[3]))
+
+
+def p_statement_array_keys(t):
+    'statement_array : type list_brackets tk_id tk_assig values_array'
+
+    t[0] = Array(t[1], t[2], t[3], None, None, t[5], t.lineno(3), find_column(input, t.slice[3]))
+
+def p_statement_array_array(t):
+    'statement_array : type list_brackets tk_id tk_assig tk_id'
+
+    t[0] = Array(t[1], t[2], t[3], None, None, [], t.lineno(3), find_column(input, t.slice[3]), Identifier(t[5], t.lineno(3), find_column(input, t.slice[3])))
+
+
+def p_statement_array_list_brackets(t):
+    'list_brackets : list_brackets brackets'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_statement_array_list_brackets_brackets(t):
+    'list_brackets : brackets'
+    t[0] = [t[1]]
+
+def p_statement_array_brackets(t):
+    'brackets : tk_brackets_o tk_brackets_c'
+    t[0] = t[1] + t[2]
+
+def p_statement_array_list_expression(t):
+    'list_expression : list_expression expression_bra'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_statement_array_list_expression_expression(t):
+    'list_expression : expression_bra'
+    t[0] = [t[1]]
+
+def p_statement_array_expression(t):
+    'expression_bra : tk_brackets_o expression tk_brackets_c'
+    t[0] = t[2]
+
+
+def p_values_array(t):
+    'values_array : tk_key_o list_values_array tk_key_c'
+
+    t[0] = t[2]
+
+def p_list_values_array(t):
+    'list_values_array : list_values_array tk_comma values'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_list_values_array_value(t):
+    'list_values_array : values'
+
+    t[0] = [t[1]]
+
+def p_value(t):
+    '''values : values_array
+              | expression'''
+
+    t[0] = t[1]
+
+
 ###---------Production Assignment---------###
 
 def p_assignment(t):
     'assignment : tk_id tk_assig expression'
     t[0] = Assignment(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_assignment_array(t):
+    'assignment_array : tk_id list_expression tk_assig expression'
+
+    t[0] = Access_Array(t[1], t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
+
+# def p_assignment_array_array(t):
+#     'assignment_array : tk_id tk_assig tk_id'
+
+#     t[0] = Access_Array(t[1], [], t[3], t.lineno(1), find_column(input, t.slice[1]))
 
 
 ###---------Production Functions---------###
@@ -299,6 +390,78 @@ def p_functions(t):
 def p_function_main(t):
     'function_main : res_main tk_par_o tk_par_c tk_key_o instructions tk_key_c'
     t[0] = Main(t[5], t.lineno(1), find_column(input, t.slice[1]))
+
+
+###---------Production function_without_params---------###
+
+def p_function_whitout_params(t):
+    'functions : res_func tk_id tk_par_o tk_par_c tk_key_o instructions tk_key_c'
+
+    t[0] = Function(t[2], [], t[6], t.lineno(1), find_column(input, t.slice[1]))
+
+
+def p_function_whit_params(t):
+    'functions : res_func tk_id tk_par_o list_params tk_par_c tk_key_o instructions tk_key_c'
+
+    t[0] = Function(t[2], t[4], t[7], t.lineno(1), find_column(input, t.slice[1]))
+
+ 
+###---------Production list of params in functions---------###
+
+def p_list_params_functions(t):
+
+    'list_params : list_params tk_comma params'
+
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_list_params_params_funcion(t): 
+    'list_params : params'
+
+    t[0] = [t[1]]
+
+def p_params_of_function(t):
+    'params : type tk_id'
+
+    t[0] = {'type': t[1], 'name': t[2]}
+
+def p_params_of_functions_arrya(t):
+    'params : type list_brackets tk_id'
+
+    t[0] = {'type': type.ARRAY, 'name': t[3], 'len': t[2], 'sub_type': t[1]}
+
+
+
+###---------Production call_function---------###
+
+def p_call_function_whitout_params(t):
+    'call_function : tk_id tk_par_o tk_par_c'
+
+    t[0] = Call(t[1], [], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_call_function_whit_params(t):
+    'call_function : tk_id tk_par_o list_params_call tk_par_c'
+
+    t[0] = Call(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+
+###---------Production list_params_call---------###
+
+def p_list_params_call(t):
+    'list_params_call : list_params_call tk_comma params_call'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_list_params_call_param(t):
+    'list_params_call : params_call'
+
+    t[0] = [t[1]]
+
+def p_params_call(t):
+    'params_call : expression'
+
+    t[0] = t[1]
 
 
 ###---------Production print---------###
@@ -417,6 +580,39 @@ def p_transfer_break(t):
     t[0] = Break(t.lineno(1), find_column(input, t.slice[1]))
 
 
+def p_transfer_continue(t):
+    'transfer : res_continue'
+
+    t[0] = Continue(t.lineno(1), find_column(input, t.slice[1]))
+
+def p_transfer_return(t):
+    'transfer : res_return expression'
+
+    t[0] = Return(t[2], t.lineno(1), find_column(input, t.slice[1]))
+
+
+###---------Production Type---------###
+
+def p_type(t):
+    '''type : res_int
+            | res_char
+            | res_string
+            | res_double
+            | res_boolean'''
+
+    if t[1] == 'int':
+        t[0] = type.INTEGGER
+    elif t[1] == 'double':
+        t[0] = type.FLOAT
+    elif t[1] == 'char':
+        t[0] = type.CHAR
+    elif t[1] == 'string':
+        t[0] = type.STRING
+    elif t[1] == 'boolean':
+        t[0] = type.BOOLEAN
+
+
+
 
 ###---------Production ptcommaP---------###
 
@@ -495,6 +691,21 @@ def p_expression_unary_right(t):
     elif t[2] == '--':
         t[0] = Arithmetic(t[1], None, Arithmetic_Operator.DEC, t.lineno(2), find_column(input, t.slice[2]))
 
+def p_expression_unary_cast(t):
+    'expression : tk_par_o type tk_par_c expression %prec tk_fcast'
+
+    t[0] = Casting(t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
+
+
+def p_expression_call_function(t):
+    'expression : call_function'
+    t[0] = t[1]
+
+def p_expression_read(t):
+    'expression : res_read tk_par_o tk_par_c'
+
+    t[0] = Read(t.lineno(1), find_column(input, t.slice[1]))
+
 def p_expression_primitive_int(t):
     '''
     expression :  tk_int
@@ -521,6 +732,11 @@ def p_epression_primitive_bool(t):
 def p_expression_primitive_id(t):
     'expression : tk_id'
     t[0] = Identifier(t[1], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expression_primitive_array(t):
+    'expression : tk_id list_expression'
+
+    t[0] = Access_Array(t[1], t[2], None, t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expression_primitive_null(t):
     'expression : res_null'

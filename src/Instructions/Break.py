@@ -1,5 +1,5 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
-from src.SymbolTable.Errors import Error
 
 
 class Break(Instruction):
@@ -10,3 +10,7 @@ class Break(Instruction):
 
     def interpret(self, tree, table):
         return self
+
+    def get_node(self):
+        node = Ast_Node("Break")
+        return node

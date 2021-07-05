@@ -1,3 +1,4 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.Abstract.Instruction import Instruction
 from src.SymbolTable.Type import type, Relational_Operators
 from src.SymbolTable.Errors import Error
@@ -8,6 +9,7 @@ class Relational(Instruction):
         self.__operator = operator
         self.__exp1 = exp1
         self.__exp2 = exp2
+        self.__value = None
         self.row = row
         self.column = column
         self.__type = type.BOOLEAN
@@ -108,18 +110,50 @@ class Relational(Instruction):
     def to_lower(self, left, right, operator):
 
         if operator == '==':
+            self.__value = str(left == right).lower()
             return str(left == right).lower()
         elif operator == '=!':
+            self.__value = str(left != right).lower()
             return str(left != right).lower()
         elif operator == '<':
+            self.__value = str(left < right).lower()
             return str(left < right).lower()
         elif operator == '<=':
+            self.__value = str(left <= right).lower()
             return str(left <= right).lower()
         elif operator == '>':
+            self.__value = str(left > right).lower()
             return str(left > right).lower()
         elif operator == '>=':
+            self.__value = str(left >= right).lower()
             return str(left >= right).lower()
 
+    def get_operator(self, operator):
+
+        if operator == Relational_Operators.EQUAL:
+            return '=='
+        elif operator == Relational_Operators.UNEQUAL:
+            return '=!'
+        elif operator == Relational_Operators.GREATER:
+            return '>'
+        elif operator == Relational_Operators.GREATEREQUAL:
+            return '>='
+        elif operator == Relational_Operators.LESS:
+            return '<'
+        elif operator == Relational_Operators.LESSEQUAL:
+            return '<='
+
+
+    def get_node(self):
+        node = Ast_Node("Expression Relational")
+        node.add_childs_node(self.__exp1.get_node())
+        node.add_child(self.get_operator(self.__operator))
+        node.add_childs_node(self.__exp2.get_node())
+    
+        return node
 
     def get_type(self):
         return self.__type
+
+    def __str__(self):
+        return self.__value

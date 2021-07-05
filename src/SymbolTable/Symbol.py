@@ -1,8 +1,9 @@
 class Symbol:
 
-    def __init__(self, id, type, row, column, value):
+    def __init__(self, id, type, row, column, value, environment = None):
         self.__id = id.lower()
         self.__type = type
+        self.__environment = environment
         self.__row = row
         self.__column = column
         self.__value = value
@@ -19,6 +20,12 @@ class Symbol:
 
     def get_type(self):
         return self.__type
+
+    def set_environment(self, environment):
+        self.__environment = environment
+    
+    def get_environment(self):
+        return self.__environment
         
     def set_row(self, row):
         self.__row = row

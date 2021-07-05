@@ -10,3 +10,7 @@ class Instruction(ABC):
     @abstractmethod
     def interpret(self, tree, table):
         pass
+
+    @abstractmethod
+    def get_node(self):
+        pass

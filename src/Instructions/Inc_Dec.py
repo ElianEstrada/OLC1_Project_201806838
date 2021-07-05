@@ -1,6 +1,8 @@
+from src.Abstract.Ast_Node import Ast_Node
 from src.SymbolTable.Errors import Error
 from src.Abstract.Instruction import Instruction
 from src.Expression.Identifier import Identifier
+from src.Expression.Access_Array import Access_Array
 from src.SymbolTable.Symbol import Symbol
 from src.SymbolTable.Type import type, Arithmetic_Operator
 
@@ -44,6 +46,16 @@ class Int_Dec(Instruction):
         else:
             return Error("Semantic", f"The operator: {self.__operator.name} can only be used on variables", self.row, self.column)
 
+    def get_node(self):
+        node = Ast_Node("Incremento_Decremento")
+
+        node.add_childs_node(self.__exp.get_node())
+        if self.__operator == Arithmetic_Operator.INC:
+            node.add_child("++")
+        else: 
+            node.add_child("--")
+
+        return node;
 
     def set_exp(self, exp):
         self.__exp = exp
